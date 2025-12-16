@@ -52,15 +52,58 @@ const pipes = createPipes(canvas, ctx, fg, bird, gameOver, scoreElements);
 // Configurar entrada (pasar handlePause para la tecla Escape)
 setupInput(canvas, bird, startScreen, scoreHud, resetGame, handlePause);
 
-// Configurar botón de reinicio
-restartBtn.addEventListener('click', resetGame);
+/**
+ * Helper para eventos táctiles móviles
+ * Maneja tanto touch como click evitando eventos duplicados
+ * Usa stopPropagation para evitar que el evento llegue al inputHandler del juego
+ */
+function addMobileClickListener(element, handler) {
+    let touchMoved = false;
+    let touchHandled = false;
 
-// Configurar controles de pausa
-pauseBtn.addEventListener('click', handlePause);
-resumeBtn.addEventListener('click', handleResume);
+    element.addEventListener('touchstart', (e) => {
+        touchMoved = false;
+        touchHandled = false;
+        e.stopPropagation(); // Evitar que el touch active el salto del pájaro
+    }, { passive: true });
 
-// Configurar controles de música
-musicBtn.addEventListener('click', toggleMusic);
+    element.addEventListener('touchmove', () => {
+        touchMoved = true;
+    }, { passive: true });
+
+    element.addEventListener('touchend', (e) => {
+        if (!touchMoved) {
+            e.preventDefault();
+            e.stopPropagation(); // Evitar propagación al juego
+            touchHandled = true;
+            handler(e);
+        }
+    });
+
+    element.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evitar que el click active el salto del pájaro
+        // Solo ejecutar si no fue manejado por touch
+        if (!touchHandled) {
+            handler(e);
+        }
+        touchHandled = false;
+    });
+
+    // También prevenir mousedown para evitar el salto
+    element.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+    });
+}
+
+// Configurar botón de reinicio (compatible con móvil)
+addMobileClickListener(restartBtn, resetGame);
+
+// Configurar controles de pausa (compatible con móvil)
+addMobileClickListener(pauseBtn, handlePause);
+addMobileClickListener(resumeBtn, handleResume);
+
+// Configurar controles de música (compatible con móvil)
+addMobileClickListener(musicBtn, toggleMusic);
 volumeSlider.addEventListener('input', handleVolumeChange);
 
 /**

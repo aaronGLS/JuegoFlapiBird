@@ -25,7 +25,12 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
         // Registrar tiempo del touch
         if (e.type === 'touchstart') {
             lastTouchTime = Date.now();
-            e.preventDefault(); // Prevenir emisión de mousedown
+            // Solo prevenir default si el touch está en el canvas/game-container
+            // Esto evita bloquear clicks en botones UI
+            const targetId = e.target.id;
+            if (e.target.tagName === 'CANVAS' || targetId === 'game-container') {
+                e.preventDefault();
+            }
         }
 
         // Ignorar inputs si está pausado (excepto Escape)
