@@ -174,6 +174,7 @@ function resetGame() {
     bird.reset();
     pipes.reset();
     score.reset();
+    score.draw(currentScoreEl, finalScoreEl, bestScoreEl);  // Actualizar UI inmediatamente
     state.current = state.getReady;
     setPaused(false);
     resetFrames();
