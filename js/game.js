@@ -1,6 +1,7 @@
 /**
  * GAME.JS - Game Loop Principal y Control del Juego
  */
+import { preloadAssets } from './loader.js';
 import { sfx, music } from './audio.js';
 import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused } from './state.js';
 import { createBackground } from './background.js';
@@ -285,5 +286,22 @@ function drawPauseOverlay() {
 // Exponer función para iniciar música desde input
 export { startMusic };
 
-// Iniciar bucle
-requestAnimationFrame(loop);
+/**
+ * INICIALIZACIÓN DEL JUEGO
+ * Espera a que todos los recursos estén precargados
+ */
+async function initGame() {
+    // Esperar a que todos los assets se precarguen
+    await preloadAssets();
+
+    // Inicializar música con el audio precargado
+    music.init();
+
+    console.log('🎮 Juego iniciado - todos los recursos listos');
+
+    // Iniciar bucle del juego
+    requestAnimationFrame(loop);
+}
+
+// Iniciar el proceso de carga e inicialización
+initGame();

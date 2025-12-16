@@ -1,33 +1,18 @@
 /**
  * SISTEMA DE AUDIO
- * Usamos URLs de GitHub raw para los assets originales.
+ * Usa los assets precargados desde loader.js
  * Implementación de 'cloneNode' para permitir sonidos simultáneos.
  */
-const SFX_URLS = {
-    wing: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/wing.wav",
-    point: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/point.wav",
-    hit: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/hit.wav",
-    die: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/die.wav",
-    swooshing: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/swooshing.wav"
-};
-
-// Música de fondo - Archivo local
-const MUSIC_URL = "./resources/music.mp3";
-
+import { preloadedAssets } from './loader.js';
 
 export const sfx = {
-    wing: new Audio(SFX_URLS.wing),
-    point: new Audio(SFX_URLS.point),
-    hit: new Audio(SFX_URLS.hit),
-    die: new Audio(SFX_URLS.die),
-    swooshing: new Audio(SFX_URLS.swooshing),
-
-    // Método para reproducir sin esperar a que termine el sonido anterior
+    // Método para reproducir efectos de sonido precargados
     play: function (soundName) {
-        if (this[soundName]) {
+        const preloadedSound = preloadedAssets.sfx[soundName];
+        if (preloadedSound) {
             // Clonar el nodo permite reproducir el mismo sonido múltiples veces solapadas
             // Es crítico para el sonido "wing" cuando se pulsa rápido
-            const sound = this[soundName].cloneNode();
+            const sound = preloadedSound.cloneNode();
             sound.volume = 0.5; // Volumen al 50% para no saturar
             sound.play().catch(e => console.log("Audio play blocked (user interaction needed first)"));
         }
@@ -36,6 +21,7 @@ export const sfx = {
 
 /**
  * SISTEMA DE MÚSICA DE FONDO
+ * Usa el audio precargado desde loader.js
  */
 export const music = {
     track: null,
@@ -43,12 +29,13 @@ export const music = {
     volume: 0.3,
     isMuted: false,
 
-    // Inicializar la música
+    // Inicializar con la música precargada
     init: function () {
-        this.track = new Audio(MUSIC_URL);
-        this.track.loop = true;
-        this.track.volume = this.volume;
-        this.track.preload = 'auto';
+        this.track = preloadedAssets.music;
+        if (this.track) {
+            this.track.loop = true;
+            this.track.volume = this.volume;
+        }
     },
 
     // Reproducir música
@@ -102,5 +89,4 @@ export const music = {
     }
 };
 
-// Inicializar música al cargar el módulo
-music.init();
+// Nota: music.init() se llamará después de que preloadAssets() complete

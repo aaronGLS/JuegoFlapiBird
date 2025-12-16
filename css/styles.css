@@ -50,3 +50,81 @@ input[type="range"] {
     pointer-events: none;
     transition: opacity 0.1s ease-out;
 }
+
+/* ===== PANTALLA DE CARGA ===== */
+#loading-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #4ec0ca 0%, #70c5ce 50%, #ded895 100%);
+    z-index: 100;
+    transition: opacity 0.5s ease-out;
+}
+
+.loading-title {
+    font-size: 3rem;
+    color: #fff;
+    -webkit-text-stroke: 2px #543847;
+    text-shadow: 3px 3px 0 #543847;
+    margin-bottom: 2rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.progress-container {
+    width: 80%;
+    max-width: 300px;
+    height: 30px;
+    background: #543847;
+    border-radius: 15px;
+    padding: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar {
+    height: 100%;
+    background: #73bf2e;
+    border-radius: 12px;
+    width: 0%;
+    transition: width 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        left: 100%;
+    }
+}
+
+.progress-text {
+    font-size: 1.5rem;
+    color: #fff;
+    -webkit-text-stroke: 1px #543847;
+    margin-top: 1rem;
+}
