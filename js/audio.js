@@ -86,6 +86,18 @@ export const music = {
     // Obtener volumen actual
     getVolume: function () {
         return this.volume;
+    },
+
+    // Reiniciar música desde el principio
+    restart: function () {
+        if (this.track) {
+            this.track.currentTime = 0;
+            if (!this.isMuted) {
+                this.track.play().then(() => {
+                    this.isPlaying = true;
+                }).catch(e => { });
+            }
+        }
     }
 };
 

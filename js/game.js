@@ -229,10 +229,8 @@ function resetGame() {
     scoreHud.classList.add('hidden');
     pauseBtn.classList.add('hidden');
 
-    // Reanudar música si no está muteada
-    if (!music.isMuted) {
-        music.resume();
-    }
+    // Reiniciar música desde el principio
+    music.restart();
 }
 
 /**
