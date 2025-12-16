@@ -1,23 +1,48 @@
 /**
  * INPUT - Manejadores de entrada del juego
  */
-import { state } from './state.js';
+import { state, isPaused } from './state.js';
 
-export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallback) {
+export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallback, handlePauseCallback) {
+
+    // Referencia al botón de pausa para mostrarlo al iniciar
+    const pauseBtn = document.getElementById('pause-btn');
 
     function inputHandler(e) {
+        // Ignorar inputs si está pausado (excepto Escape)
+        if (isPaused() && e.type !== 'keydown') return;
+
         if (e.type === 'touchstart' || e.type === 'keydown') {
             // e.preventDefault(); // Opcional
         }
 
+        // Manejar tecla Escape para pausa
+        if (e.type === 'keydown' && e.code === 'Escape') {
+            if (handlePauseCallback) {
+                handlePauseCallback();
+            }
+            return;
+        }
+
         if (e.type === 'keydown' && e.code !== 'Space' && e.code !== 'ArrowUp') return;
+
+        // Ignorar si está pausado
+        if (isPaused()) return;
 
         switch (state.current) {
             case state.getReady:
                 state.current = state.game;
                 startScreen.classList.add('opacity-0');
                 scoreHud.classList.remove('hidden');
+                if (pauseBtn) pauseBtn.classList.remove('hidden');
                 bird.flap();
+
+                // Importar y llamar startMusic dinámicamente
+                import('./game.js').then(module => {
+                    if (module.startMusic) {
+                        module.startMusic();
+                    }
+                });
                 break;
 
             case state.game:

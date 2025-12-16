@@ -31,6 +31,35 @@
             <span id="current-score" class="text-6xl text-white font-bold text-stroke">0</span>
         </div>
 
+        <!-- UI: Botón de Pausa -->
+        <button id="pause-btn"
+            class="absolute top-4 right-4 w-12 h-12 bg-white/80 hover:bg-white rounded-full border-2 border-black shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 hidden z-10">
+            ⏸️
+        </button>
+
+        <!-- UI: Controles de Música (siempre visible) -->
+        <div id="music-controls" class="absolute top-4 left-4 flex items-center gap-2 z-10">
+            <button id="music-btn"
+                class="w-10 h-10 bg-white/80 hover:bg-white rounded-full border-2 border-black shadow-lg flex items-center justify-center text-xl transition-all hover:scale-110">
+                <span>🎵</span>
+            </button>
+            <input id="volume-slider" type="range" min="0" max="1" step="0.1" value="0.3"
+                class="w-20 h-2 bg-white/60 rounded-lg appearance-none cursor-pointer accent-orange-500">
+        </div>
+
+        <!-- UI: Pantalla de Pausa -->
+        <div id="pause-screen"
+            class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 hidden z-30">
+            <div class="bg-[#ded895] border-4 border-[#543847] p-6 rounded-lg shadow-2xl text-center">
+                <h2 class="text-5xl text-[#543847] font-bold mb-6 text-stroke">PAUSA</h2>
+                <p class="text-xl text-[#543847] mb-6">Presiona ESC o el botón para continuar</p>
+                <button id="resume-btn"
+                    class="bg-[#73bf2e] hover:bg-[#9ce659] text-white text-2xl font-bold py-3 px-8 rounded border-2 border-[#543847] shadow-[0_4px_0_#543847] active:shadow-none active:translate-y-1 transition-all">
+                    ▶️ CONTINUAR
+                </button>
+            </div>
+        </div>
+
         <!-- UI: Pantalla de Game Over -->
         <div id="game-over-screen"
             class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 hidden z-20">

@@ -1,8 +1,8 @@
 /**
  * GAME.JS - Game Loop Principal y Control del Juego
  */
-import { sfx } from './audio.js';
-import { state, score, FRAME_DURATION, resetFrames } from './state.js';
+import { sfx, music } from './audio.js';
+import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused } from './state.js';
 import { createBackground } from './background.js';
 import { createForeground } from './foreground.js';
 import { createBird } from './bird.js';
@@ -25,8 +25,16 @@ const flashOverlay = document.getElementById('flash-overlay');
 const medalDisplay = document.getElementById('medal-display');
 const medalIcon = document.getElementById('medal-icon');
 
+// Elementos de pausa y música
+const pauseBtn = document.getElementById('pause-btn');
+const pauseScreen = document.getElementById('pause-screen');
+const resumeBtn = document.getElementById('resume-btn');
+const musicBtn = document.getElementById('music-btn');
+const volumeSlider = document.getElementById('volume-slider');
+
 // Variables de Tiempo (Delta Time Logic)
 let lastTime = 0;
+let musicStarted = false;
 
 // Elementos de puntuación para pasar a los módulos
 const scoreElements = {
@@ -41,11 +49,70 @@ const bg = createBackground(canvas, ctx, fg);
 const bird = createBird(canvas, ctx, fg, gameOver);
 const pipes = createPipes(canvas, ctx, fg, bird, gameOver, scoreElements);
 
-// Configurar entrada
-setupInput(canvas, bird, startScreen, scoreHud, resetGame);
+// Configurar entrada (pasar handlePause para la tecla Escape)
+setupInput(canvas, bird, startScreen, scoreHud, resetGame, handlePause);
 
 // Configurar botón de reinicio
 restartBtn.addEventListener('click', resetGame);
+
+// Configurar controles de pausa
+pauseBtn.addEventListener('click', handlePause);
+resumeBtn.addEventListener('click', handleResume);
+
+// Configurar controles de música
+musicBtn.addEventListener('click', toggleMusic);
+volumeSlider.addEventListener('input', handleVolumeChange);
+
+/**
+ * CONTROL DE PAUSA
+ */
+function handlePause() {
+    if (state.current === state.game && !isPaused()) {
+        setPaused(true);
+        pauseScreen.classList.remove('hidden');
+        pauseBtn.classList.add('hidden');
+        music.pause();
+    }
+}
+
+function handleResume() {
+    if (isPaused()) {
+        setPaused(false);
+        pauseScreen.classList.add('hidden');
+        pauseBtn.classList.remove('hidden');
+        lastTime = 0; // Reset delta time para evitar saltos
+        if (!music.isMuted) {
+            music.resume();
+        }
+    }
+}
+
+/**
+ * CONTROL DE MÚSICA
+ */
+function toggleMusic() {
+    const isMuted = music.toggleMute();
+    updateMusicButtonIcon(isMuted);
+}
+
+function updateMusicButtonIcon(isMuted) {
+    const icon = musicBtn.querySelector('span');
+    if (icon) {
+        icon.innerText = isMuted ? '🔇' : '🎵';
+    }
+}
+
+function handleVolumeChange(e) {
+    const volume = parseFloat(e.target.value);
+    music.setVolume(volume);
+}
+
+function startMusic() {
+    if (!musicStarted) {
+        music.play();
+        musicStarted = true;
+    }
+}
 
 /**
  * CONTROL DE ESTADOS Y EVENTOS
@@ -71,6 +138,9 @@ function gameOver() {
     triggerFlash();
     score.save();
 
+    // Pausar música en game over
+    music.pause();
+
     // Sistema de medallas
     medalIcon.className = "hidden text-3xl font-bold text-white text-shadow";
     medalDisplay.style.backgroundColor = "#bdae79";
@@ -94,6 +164,7 @@ function gameOver() {
 
     score.draw(currentScoreEl, finalScoreEl, bestScoreEl);
     scoreHud.classList.add('hidden');
+    pauseBtn.classList.add('hidden');
     gameOverScreen.classList.remove('hidden');
     restartBtn.focus();
 }
@@ -104,11 +175,19 @@ function resetGame() {
     pipes.reset();
     score.reset();
     state.current = state.getReady;
+    setPaused(false);
     resetFrames();
 
     gameOverScreen.classList.add('hidden');
+    pauseScreen.classList.add('hidden');
     startScreen.classList.remove('opacity-0');
     scoreHud.classList.add('hidden');
+    pauseBtn.classList.add('hidden');
+
+    // Reanudar música si no está muteada
+    if (!music.isMuted) {
+        music.resume();
+    }
 }
 
 /**
@@ -125,8 +204,17 @@ function loop(timestamp) {
     // Factor de normalización
     const delta = dt / FRAME_DURATION;
 
-    update(delta);
+    // Solo actualizar si no está pausado
+    if (!isPaused()) {
+        update(delta);
+    }
+
     draw();
+
+    // Dibujar overlay de pausa si está pausado
+    if (isPaused()) {
+        drawPauseOverlay();
+    }
 
     requestAnimationFrame(loop);
 }
@@ -143,6 +231,15 @@ function draw() {
     fg.draw();
     bird.draw();
 }
+
+function drawPauseOverlay() {
+    // Overlay semi-transparente adicional en el canvas
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// Exponer función para iniciar música desde input
+export { startMusic };
 
 // Iniciar bucle
 requestAnimationFrame(loop);

@@ -11,15 +11,18 @@ const SFX_URLS = {
     swooshing: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/swooshing.wav"
 };
 
+// Música de fondo - Loop 8-bit retro
+const MUSIC_URL = "https://opengameart.org/sites/default/files/8-Bit%20Heaven%20%28looped%29.mp3";
+
 export const sfx = {
     wing: new Audio(SFX_URLS.wing),
     point: new Audio(SFX_URLS.point),
     hit: new Audio(SFX_URLS.hit),
     die: new Audio(SFX_URLS.die),
     swooshing: new Audio(SFX_URLS.swooshing),
-    
+
     // Método para reproducir sin esperar a que termine el sonido anterior
-    play: function(soundName) {
+    play: function (soundName) {
         if (this[soundName]) {
             // Clonar el nodo permite reproducir el mismo sonido múltiples veces solapadas
             // Es crítico para el sonido "wing" cuando se pulsa rápido
@@ -29,3 +32,74 @@ export const sfx = {
         }
     }
 };
+
+/**
+ * SISTEMA DE MÚSICA DE FONDO
+ */
+export const music = {
+    track: null,
+    isPlaying: false,
+    volume: 0.3,
+    isMuted: false,
+
+    // Inicializar la música
+    init: function () {
+        this.track = new Audio(MUSIC_URL);
+        this.track.loop = true;
+        this.track.volume = this.volume;
+        this.track.preload = 'auto';
+    },
+
+    // Reproducir música
+    play: function () {
+        if (this.track && !this.isPlaying) {
+            this.track.play().then(() => {
+                this.isPlaying = true;
+            }).catch(e => {
+                console.log("Music play blocked (user interaction needed first)");
+            });
+        }
+    },
+
+    // Pausar música
+    pause: function () {
+        if (this.track && this.isPlaying) {
+            this.track.pause();
+            this.isPlaying = false;
+        }
+    },
+
+    // Reanudar música
+    resume: function () {
+        if (this.track && !this.isPlaying && !this.isMuted) {
+            this.track.play().then(() => {
+                this.isPlaying = true;
+            }).catch(e => { });
+        }
+    },
+
+    // Alternar mute
+    toggleMute: function () {
+        this.isMuted = !this.isMuted;
+        if (this.track) {
+            this.track.muted = this.isMuted;
+        }
+        return this.isMuted;
+    },
+
+    // Establecer volumen (0.0 - 1.0)
+    setVolume: function (value) {
+        this.volume = Math.max(0, Math.min(1, value));
+        if (this.track) {
+            this.track.volume = this.volume;
+        }
+    },
+
+    // Obtener volumen actual
+    getVolume: function () {
+        return this.volume;
+    }
+};
+
+// Inicializar música al cargar el módulo
+music.init();

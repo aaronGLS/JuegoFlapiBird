@@ -18,8 +18,26 @@ export const state = {
     current: 0,
     getReady: 0,
     game: 1,
-    over: 2
+    over: 2,
+    paused: false  // Nuevo: estado de pausa
 };
+
+// Funciones de pausa
+export function togglePause() {
+    if (state.current === state.game) {
+        state.paused = !state.paused;
+        return state.paused;
+    }
+    return false;
+}
+
+export function isPaused() {
+    return state.paused;
+}
+
+export function setPaused(value) {
+    state.paused = value;
+}
 
 // Contador global de frames lógicos
 export let frames = 0;
