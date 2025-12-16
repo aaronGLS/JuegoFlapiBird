@@ -290,6 +290,9 @@ async function initGame() {
     // Inicializar música con el audio precargado
     music.init();
 
+    // Sincronizar el slider de volumen con el valor por defecto
+    volumeSlider.value = music.getVolume();
+
     console.log('🎮 Juego iniciado - todos los recursos listos');
 
     // Iniciar bucle del juego
