@@ -23,6 +23,11 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
             audioContextResumed = true;
         }
 
+        // Evitar que inputs de UI (como slider de volumen) activen el salto
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
+            return;
+        }
+
         // Prevenir eventos duplicados en móvil
         // Si es mousedown y hubo un touch reciente (< 500ms), ignorar
         if (e.type === 'mousedown') {

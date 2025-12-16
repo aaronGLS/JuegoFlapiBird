@@ -222,7 +222,7 @@ function resetGame() {
     pauseBtn.classList.add('hidden');
 
     // Reiniciar música desde el principio
-    music.restart();
+    // music.restart(); // Eliminado para evitar que suene antes de iniciar
 }
 
 /**
