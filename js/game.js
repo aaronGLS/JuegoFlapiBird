@@ -233,7 +233,8 @@ function loop(timestamp) {
     // Calcular delta time
     if (!lastTime) lastTime = timestamp;
 
-    const dt = timestamp - lastTime;
+    let dt = timestamp - lastTime;
+    if (dt > 100) dt = 100; // Limitar a máximo 100ms para prevenir saltos enormes (tunneling)
     lastTime = timestamp;
 
     // Factor de normalización
