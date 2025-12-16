@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy Bird Pro - v2.0</title>
+    <!-- Tailwind CSS para la interfaz -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- UI: Pantalla de Inicio -->
+        <div id="start-screen"
+            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300">
+            <h1 class="text-6xl text-white font-bold text-stroke mb-4 tracking-widest">FLAPPY BIRD</h1>
+            <div class="bg-white/90 border-4 border-black p-4 rounded-lg shadow-lg text-center animate-bounce">
+                <p class="text-2xl text-black font-bold">Toca o Espacio</p>
+                <p class="text-xl text-gray-700">para comenzar</p>
+            </div>
+        </div>
+
+        <!-- UI: HUD de Puntuación -->
+        <div id="score-hud" class="absolute top-10 w-full text-center pointer-events-none hidden">
+            <span id="current-score" class="text-6xl text-white font-bold text-stroke">0</span>
+        </div>
+
+        <!-- UI: Pantalla de Game Over -->
+        <div id="game-over-screen"
+            class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 hidden z-20">
+            <h2 class="text-6xl text-orange-500 font-bold text-stroke mb-6">GAME OVER</h2>
+
+            <div class="bg-[#ded895] border-4 border-[#543847] p-2 rounded w-80 relative shadow-2xl">
+                <div class="border-2 border-[#9e9a68] p-4 flex flex-col gap-4">
+                    <div class="flex flex-row justify-between items-center">
+                        <div class="flex flex-col items-center w-1/3">
+                            <span class="text-[#e86101] text-lg font-bold text-stroke-sm mb-2">MEDALLA</span>
+                            <div id="medal-display"
+                                class="w-16 h-16 bg-[#bdae79] rounded-full border-4 border-[#9e9a68] shadow-inner flex items-center justify-center relative">
+                                <div id="medal-icon" class="hidden text-3xl font-bold text-white text-shadow"></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col w-2/3 items-end pr-2">
+                            <div class="mb-2 text-right">
+                                <span class="text-[#e86101] text-lg font-bold text-stroke-sm block">SCORE</span>
+                                <span id="final-score" class="text-4xl text-white font-bold text-stroke">0</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[#e86101] text-lg font-bold text-stroke-sm block">BEST</span>
+                                <span id="best-score" class="text-4xl text-white font-bold text-stroke">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="restart-btn"
+                class="mt-8 bg-[#e86101] hover:bg-[#ff7f27] text-white text-2xl font-bold py-2 px-6 rounded border-2 border-white shadow-[0_4px_0_rgb(0,0,0)] active:shadow-none active:translate-y-1 transition-all">
+                JUGAR DE NUEVO
+            </button>
+        </div>
+
+        <div id="flash-overlay" class="absolute inset-0 bg-white opacity-0 z-50"></div>
+    </div>
+
+    <!-- Módulo principal del juego -->
+    <script type="module" src="js/game.js"></script>
+
+</body>
+
+</html>
