@@ -8,13 +8,28 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
     // Referencia al botón de pausa para mostrarlo al iniciar
     const pauseBtn = document.getElementById('pause-btn');
 
+    // Flag para prevenir eventos duplicados en móvil
+    // Cuando se dispara touchstart, el navegador también emite mousedown
+    let lastTouchTime = 0;
+
     function inputHandler(e) {
+        // Prevenir eventos duplicados en móvil
+        // Si es mousedown y hubo un touch reciente (< 500ms), ignorar
+        if (e.type === 'mousedown') {
+            const now = Date.now();
+            if (now - lastTouchTime < 500) {
+                return; // Ignorar mousedown duplicado después de touch
+            }
+        }
+
+        // Registrar tiempo del touch
+        if (e.type === 'touchstart') {
+            lastTouchTime = Date.now();
+            e.preventDefault(); // Prevenir emisión de mousedown
+        }
+
         // Ignorar inputs si está pausado (excepto Escape)
         if (isPaused() && e.type !== 'keydown') return;
-
-        if (e.type === 'touchstart' || e.type === 'keydown') {
-            // e.preventDefault(); // Opcional
-        }
 
         // Manejar tecla Escape para pausa
         if (e.type === 'keydown' && e.code === 'Escape') {
@@ -64,7 +79,7 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
     // Configurar event listeners
     window.addEventListener('keydown', inputHandler);
     window.addEventListener('mousedown', inputHandler);
-    window.addEventListener('touchstart', (e) => inputHandler(e), { passive: false });
+    window.addEventListener('touchstart', inputHandler, { passive: false });
     window.addEventListener('resize', resizeCanvas);
 
     // Inicializar tamaño del canvas
@@ -75,3 +90,4 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
         resizeCanvas
     };
 }
+

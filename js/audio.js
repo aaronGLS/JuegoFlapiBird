@@ -11,8 +11,10 @@ const SFX_URLS = {
     swooshing: "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/audio/swooshing.wav"
 };
 
-// Música de fondo - Loop 8-bit retro
-const MUSIC_URL = "https://opengameart.org/sites/default/files/8-Bit%20Heaven%20%28looped%29.mp3";
+// Música de fondo - Loop 8-bit retro (URL con CORS habilitado)
+// Usando un archivo de música retro de un repositorio público
+const MUSIC_URL = "https://cdn.pixabay.com/audio/2022/03/10/audio_6c4827ef88.mp3";
+
 
 export const sfx = {
     wing: new Audio(SFX_URLS.wing),
