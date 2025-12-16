@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo -->
+  <rect width="512" height="512" rx="100" fill="#4EC0CA"/>
+  
+  <!-- Cuerpo del pájaro -->
+  <ellipse cx="256" cy="280" rx="120" ry="107" fill="#F5D547"/>
+  
+  <!-- Ala -->
+  <ellipse cx="200" cy="295" rx="58" ry="40" fill="#E8C43A"/>
+  
+  <!-- Ojo blanco -->
+  <circle cx="306" cy="240" r="48" fill="white"/>
+  
+  <!-- Pupila -->
+  <circle cx="314" cy="240" r="27" fill="#333"/>
+  
+  <!-- Brillo del ojo -->
+  <circle cx="322" cy="232" r="10" fill="white"/>
+  
+  <!-- Pico superior -->
+  <polygon points="345,267 425,280 345,293" fill="#E86101"/>
+  
+  <!-- Pico inferior -->
+  <polygon points="345,293 410,307 345,315" fill="#CC5500"/>
+  
+  <!-- Mejilla -->
+  <ellipse cx="267" cy="307" rx="21" ry="13" fill="#F0A0A0" opacity="0.6"/>
+  
+  <!-- Cresta/Plumas arriba -->
+  <ellipse cx="227" cy="181" rx="21" ry="32" fill="#E86101"/>
+  <ellipse cx="256" cy="173" rx="16" ry="27" fill="#FF7F27"/>
+</svg>

@@ -5,6 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flappy Bird Pro - v2.0</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="¡El clásico juego de Flappy Bird! Toca para volar y evita los obstáculos.">
+    <meta name="theme-color" content="#e86101">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Flapy Bird">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Iconos -->
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
     <!-- Tailwind CSS para la interfaz -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Estilos personalizados -->
@@ -109,6 +125,21 @@
 
     <!-- Módulo principal del juego -->
     <script type="module" src="js/game.js"></script>
+
+    <!-- Registro del Service Worker para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registrado:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('❌ Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+    </script>
 
 </body>
 
