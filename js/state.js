@@ -15,12 +15,24 @@ export const BASE_PIPE_SPAWN = 100; // Frames
 
 // Estado del juego
 export const state = {
-    current: 0,
+    current: -1,    // Inicia en loading
+    loading: -1,    // Estado de carga (bloquea input)
     getReady: 0,
     game: 1,
     over: 2,
-    paused: false  // Nuevo: estado de pausa
+    paused: false  // Estado de pausa
 };
+
+// Funciones de carga
+export function isLoading() {
+    return state.current === state.loading;
+}
+
+export function finishLoading() {
+    if (state.current === state.loading) {
+        state.current = state.getReady;
+    }
+}
 
 // Funciones de pausa
 export function togglePause() {

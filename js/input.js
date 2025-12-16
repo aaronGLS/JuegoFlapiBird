@@ -1,7 +1,7 @@
 /**
  * INPUT - Manejadores de entrada del juego
  */
-import { state, isPaused } from './state.js';
+import { state, isPaused, isLoading } from './state.js';
 import { music, resumeAudioContext } from './audio.js';
 
 export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallback, handlePauseCallback) {
@@ -21,6 +21,11 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
         if (!audioContextResumed) {
             resumeAudioContext();
             audioContextResumed = true;
+        }
+
+        // Bloquear toda entrada durante la pantalla de carga
+        if (isLoading()) {
+            return;
         }
 
         // Evitar que inputs de UI (como slider de volumen) activen el salto

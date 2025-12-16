@@ -3,7 +3,7 @@
  */
 import { preloadAssets } from './loader.js';
 import { sfx, music } from './audio.js';
-import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused } from './state.js';
+import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused, finishLoading } from './state.js';
 import { createBackground } from './background.js';
 import { createForeground } from './foreground.js';
 import { createBird } from './bird.js';
@@ -292,6 +292,9 @@ async function initGame() {
 
     // Sincronizar el slider de volumen con el valor por defecto
     volumeSlider.value = music.getVolume();
+
+    // Marcar que la carga terminó para permitir inputs
+    finishLoading();
 
     console.log('🎮 Juego iniciado - todos los recursos listos');
 
