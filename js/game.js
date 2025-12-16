@@ -110,6 +110,11 @@ volumeSlider.addEventListener('input', handleVolumeChange);
  * CONTROL DE PAUSA
  */
 function handlePause() {
+    if (isPaused()) {
+        handleResume();
+        return;
+    }
+
     if (state.current === state.game && !isPaused()) {
         setPaused(true);
         pauseScreen.classList.remove('hidden');
@@ -174,8 +179,8 @@ function gameOver() {
     triggerFlash();
     score.save();
 
-    // Pausar música en game over
-    music.pause();
+    // Detener música completamente en game over
+    music.stop();
 
     // Sistema de medallas
     medalIcon.className = "hidden text-3xl font-bold text-white text-shadow";

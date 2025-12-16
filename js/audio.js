@@ -72,13 +72,53 @@ export const sfx = {
 
 export const music = {
     currentSource: null,
+    gainNode: null,
     isPlaying: false,
     volume: 0.3,
     isMuted: false,
 
+    // Para trackear el tiempo de reproducción
+    startTime: 0,      // Cuando empezó a reproducir (en tiempo del audioCtx)
+    pausedAt: 0,       // Offset en segundos donde se pausó
+
     init: function () {
         // Ya no necesitamos inicialización explícita compleja, 
         // los buffers están en preloadedAssets.music
+    },
+
+    /**
+     * Inicia la música desde un offset específico
+     * @param {number} offset - Segundos desde donde empezar
+     */
+    _startFromOffset: function (offset = 0) {
+        const buffer = preloadedAssets.music;
+        if (!buffer) return;
+
+        // Crear nuevo source
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        // Crear nodo de ganancia
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = this.isMuted ? 0 : this.volume;
+
+        // Conectar
+        source.connect(gainNode);
+        gainNode.connect(masterGain);
+
+        // Calcular offset considerando el loop
+        const duration = buffer.duration;
+        const normalizedOffset = offset % duration;
+
+        // Iniciar desde el offset
+        source.start(0, normalizedOffset);
+
+        // Guardar referencias
+        this.currentSource = source;
+        this.gainNode = gainNode;
+        this.startTime = audioCtx.currentTime - normalizedOffset;
+        this.isPlaying = true;
     },
 
     play: function () {
@@ -88,44 +128,78 @@ export const music = {
 
         if (this.isPlaying) return;
 
-        const buffer = preloadedAssets.music;
-        if (buffer) {
-            this.currentSource = playBuffer(buffer, true, this.isMuted ? 0 : this.volume);
-            this.isPlaying = true;
+        // Si hay un tiempo pausado, reanudar desde ahí
+        if (this.pausedAt > 0) {
+            this._startFromOffset(this.pausedAt);
+        } else {
+            this._startFromOffset(0);
         }
     },
 
     pause: function () {
         if (this.isPlaying && this.currentSource) {
-            this.currentSource.stop();
+            // Calcular el tiempo actual de reproducción
+            const elapsed = audioCtx.currentTime - this.startTime;
+            const buffer = preloadedAssets.music;
+            if (buffer) {
+                // Normalizar al loop
+                this.pausedAt = elapsed % buffer.duration;
+            }
+
+            // Detener el source
+            try {
+                this.currentSource.stop();
+            } catch (e) {
+                // Ignorar si ya se detuvo
+            }
             this.currentSource = null;
+            this.gainNode = null;
             this.isPlaying = false;
         }
     },
 
     resume: function () {
-        if (!this.isPlaying) {
-            this.play();
+        if (!this.isPlaying && this.pausedAt > 0) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            this._startFromOffset(this.pausedAt);
         }
     },
 
+    // Detener completamente y resetear posición
+    stop: function () {
+        if (this.currentSource) {
+            try {
+                this.currentSource.stop();
+            } catch (e) {
+                // Ignorar si ya se detuvo
+            }
+            this.currentSource = null;
+            this.gainNode = null;
+        }
+        this.isPlaying = false;
+        this.pausedAt = 0;  // Resetear posición
+        this.startTime = 0;
+    },
+
     restart: function () {
-        this.pause();
+        this.stop();
         this.play();
     },
 
     toggleMute: function () {
         this.isMuted = !this.isMuted;
-        if (this.currentSource) {
-            this.currentSource.setVolume(this.isMuted ? 0 : this.volume);
+        if (this.gainNode) {
+            this.gainNode.gain.value = this.isMuted ? 0 : this.volume;
         }
         return this.isMuted;
     },
 
     setVolume: function (value) {
         this.volume = Math.max(0, Math.min(1, value));
-        if (this.currentSource && !this.isMuted) {
-            this.currentSource.setVolume(this.volume);
+        if (this.gainNode && !this.isMuted) {
+            this.gainNode.gain.value = this.volume;
         }
     },
 
