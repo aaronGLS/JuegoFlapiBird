@@ -101,4 +101,3 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
         resizeCanvas
     };
 }
-

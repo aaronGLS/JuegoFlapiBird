@@ -132,4 +132,3 @@ export async function preloadAssets() {
 
     console.log('✅ Todos los recursos precargados y decodificados', preloadedAssets);
 }
-
