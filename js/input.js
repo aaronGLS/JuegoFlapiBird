@@ -2,6 +2,7 @@
  * INPUT - Manejadores de entrada del juego
  */
 import { state, isPaused } from './state.js';
+import { music, resumeAudioContext } from './audio.js';
 
 export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallback, handlePauseCallback) {
 
@@ -12,7 +13,16 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
     // Cuando se dispara touchstart, el navegador también emite mousedown
     let lastTouchTime = 0;
 
+    // Flag para reanudar el contexto de audio una sola vez
+    let audioContextResumed = false;
+
     function inputHandler(e) {
+        // Intentar reanudar el AudioContext en la primera interacción
+        if (!audioContextResumed) {
+            resumeAudioContext();
+            audioContextResumed = true;
+        }
+
         // Prevenir eventos duplicados en móvil
         // Si es mousedown y hubo un touch reciente (< 500ms), ignorar
         if (e.type === 'mousedown') {
@@ -57,12 +67,8 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
                 if (pauseBtn) pauseBtn.classList.remove('hidden');
                 bird.flap();
 
-                // Importar y llamar startMusic dinámicamente
-                import('./game.js').then(module => {
-                    if (module.startMusic) {
-                        module.startMusic();
-                    }
-                });
+                // Iniciar música
+                music.play();
                 break;
 
             case state.game:

@@ -1,104 +1,146 @@
 /**
- * SISTEMA DE AUDIO
- * Usa los assets precargados desde loader.js
- * Implementación de 'cloneNode' para permitir sonidos simultáneos.
+ * SISTEMA DE AUDIO (WEB AUDIO API)
+ * Usa AudioContext para reproducción sin latencia y soporte completo de superposición.
  */
 import { preloadedAssets } from './loader.js';
 
+// Crear el contexto de audio global
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+export const audioCtx = new AudioContext();
+
+// Ganancia maestra para control general de volumen si fuera necesario
+const masterGain = audioCtx.createGain();
+masterGain.connect(audioCtx.destination);
+masterGain.gain.value = 1.0;
+
+/**
+ * Helper para reproducir un buffer de audio
+ * @param {AudioBuffer} buffer - El buffer decodificado
+ * @param {boolean} loop - Si debe repetirse
+ * @param {number} volume - Volumen (0.0 - 1.0)
+ * @returns {object} - Objeto con métodos stop y setVolume
+ */
+function playBuffer(buffer, loop = false, volume = 1.0) {
+    if (!buffer) return null;
+
+    // Crear fuente
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = loop;
+
+    // Crear nodo de ganancia para este sonido
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = volume;
+
+    // Conectar: Fuente -> Ganancia -> Master -> Salida
+    source.connect(gainNode);
+    gainNode.connect(masterGain);
+
+    // Iniciar reproducción
+    source.start(0);
+
+    return {
+        source: source,
+        gainNode: gainNode,
+        stop: function () {
+            try {
+                source.stop();
+            } catch (e) {
+                // Ignorar error si ya se detuvo
+            }
+        },
+        setVolume: function (val) {
+            gainNode.gain.value = val;
+        }
+    };
+}
+
 export const sfx = {
-    // Método para reproducir efectos de sonido precargados
     play: function (soundName) {
-        const preloadedSound = preloadedAssets.sfx[soundName];
-        if (preloadedSound) {
-            // Clonar el nodo permite reproducir el mismo sonido múltiples veces solapadas
-            // Es crítico para el sonido "wing" cuando se pulsa rápido
-            const sound = preloadedSound.cloneNode();
-            sound.volume = 0.5; // Volumen al 50% para no saturar
-            sound.play().catch(e => console.log("Audio play blocked (user interaction needed first)"));
+        // Resume context si está suspendido (requisito de navegadores)
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const buffer = preloadedAssets.sfx[soundName];
+        if (buffer) {
+            // Reproducir sonido (fire and forget para SFX)
+            playBuffer(buffer, false, 0.5);
         }
     }
 };
 
-/**
- * SISTEMA DE MÚSICA DE FONDO
- * Usa el audio precargado desde loader.js
- */
 export const music = {
-    track: null,
+    currentSource: null,
     isPlaying: false,
     volume: 0.3,
     isMuted: false,
 
-    // Inicializar con la música precargada
     init: function () {
-        this.track = preloadedAssets.music;
-        if (this.track) {
-            this.track.loop = true;
-            this.track.volume = this.volume;
-        }
+        // Ya no necesitamos inicialización explícita compleja, 
+        // los buffers están en preloadedAssets.music
     },
 
-    // Reproducir música
     play: function () {
-        if (this.track && !this.isPlaying) {
-            this.track.play().then(() => {
-                this.isPlaying = true;
-            }).catch(e => {
-                console.log("Music play blocked (user interaction needed first)");
-            });
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        if (this.isPlaying) return;
+
+        const buffer = preloadedAssets.music;
+        if (buffer) {
+            this.currentSource = playBuffer(buffer, true, this.isMuted ? 0 : this.volume);
+            this.isPlaying = true;
         }
     },
 
-    // Pausar música
     pause: function () {
-        if (this.track && this.isPlaying) {
-            this.track.pause();
+        if (this.isPlaying && this.currentSource) {
+            this.currentSource.stop();
+            this.currentSource = null;
             this.isPlaying = false;
         }
     },
 
-    // Reanudar música
     resume: function () {
-        if (this.track && !this.isPlaying && !this.isMuted) {
-            this.track.play().then(() => {
-                this.isPlaying = true;
-            }).catch(e => { });
+        if (!this.isPlaying) {
+            this.play();
         }
     },
 
-    // Alternar mute
+    restart: function () {
+        this.pause();
+        this.play();
+    },
+
     toggleMute: function () {
         this.isMuted = !this.isMuted;
-        if (this.track) {
-            this.track.muted = this.isMuted;
+        if (this.currentSource) {
+            this.currentSource.setVolume(this.isMuted ? 0 : this.volume);
         }
         return this.isMuted;
     },
 
-    // Establecer volumen (0.0 - 1.0)
     setVolume: function (value) {
         this.volume = Math.max(0, Math.min(1, value));
-        if (this.track) {
-            this.track.volume = this.volume;
+        if (this.currentSource && !this.isMuted) {
+            this.currentSource.setVolume(this.volume);
         }
     },
 
-    // Obtener volumen actual
     getVolume: function () {
         return this.volume;
-    },
-
-    // Reiniciar música desde el principio
-    restart: function () {
-        if (this.track) {
-            this.track.currentTime = 0;
-            if (!this.isMuted) {
-                this.track.play().then(() => {
-                    this.isPlaying = true;
-                }).catch(e => { });
-            }
-        }
     }
 };
 
-// Nota: music.init() se llamará después de que preloadAssets() complete
+/**
+ * Función para desbloquear el AudioContext en la primera interacción del usuario
+ */
+export function resumeAudioContext() {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+            console.log('AudioContext resumed successfully');
+        });
+    }
+}

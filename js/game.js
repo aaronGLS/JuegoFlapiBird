@@ -35,7 +35,6 @@ const volumeSlider = document.getElementById('volume-slider');
 
 // Variables de Tiempo (Delta Time Logic)
 let lastTime = 0;
-let musicStarted = false;
 
 // Elementos de puntuación para pasar a los módulos
 const scoreElements = {
@@ -149,13 +148,6 @@ function updateMusicButtonIcon(isMuted) {
 function handleVolumeChange(e) {
     const volume = parseFloat(e.target.value);
     music.setVolume(volume);
-}
-
-function startMusic() {
-    if (!musicStarted) {
-        music.play();
-        musicStarted = true;
-    }
 }
 
 /**
@@ -280,9 +272,6 @@ function drawPauseOverlay() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-
-// Exponer función para iniciar música desde input
-export { startMusic };
 
 /**
  * INICIALIZACIÓN DEL JUEGO

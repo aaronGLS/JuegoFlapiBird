@@ -1,7 +1,9 @@
 /**
- * LOADER.JS - Sistema de Precarga de Recursos
- * Carga todos los assets antes de iniciar el juego
+ * LOADER.JS - Sistema de Precarga de Recursos (Web Audio API)
+ * Carga y decodifica todos los assets de audio antes de iniciar el juego.
  */
+
+import { audioCtx } from './audio.js';
 
 // URLs de los efectos de sonido
 const SFX_URLS = {
@@ -15,7 +17,7 @@ const SFX_URLS = {
 // URL de la música de fondo
 const MUSIC_URL = "./resources/music.mp3";
 
-// Almacén de assets precargados
+// Almacén de assets precargados (AudioBuffers)
 export const preloadedAssets = {
     sfx: {},
     music: null
@@ -47,28 +49,20 @@ function updateProgress(percent) {
 }
 
 /**
- * Precarga un archivo de audio
+ * Descarga y decodifica un archivo de audio para Web Audio API
  * @param {string} url - URL del archivo de audio
- * @returns {Promise<HTMLAudioElement>}
+ * @returns {Promise<AudioBuffer>}
  */
-function preloadAudio(url) {
-    return new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.preload = 'auto';
-
-        audio.addEventListener('canplaythrough', () => {
-            resolve(audio);
-        }, { once: true });
-
-        audio.addEventListener('error', (e) => {
-            console.warn(`Error cargando audio: ${url}`, e);
-            // Resolvemos de todos modos para no bloquear la carga
-            resolve(audio);
-        }, { once: true });
-
-        audio.src = url;
-        audio.load();
-    });
+async function loadAndDecodeAudio(url) {
+    try {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        return audioBuffer;
+    } catch (e) {
+        console.warn(`Error cargando/decodificando audio: ${url}`, e);
+        return null;
+    }
 }
 
 /**
@@ -109,24 +103,18 @@ export async function preloadAssets() {
 
     // Precargar efectos de sonido
     for (const key of sfxKeys) {
-        try {
-            preloadedAssets.sfx[key] = await preloadAudio(SFX_URLS[key]);
-            loadedAssets++;
-            updateProgress((loadedAssets / totalAssets) * 100);
-        } catch (e) {
-            console.warn(`No se pudo precargar SFX: ${key}`);
-            loadedAssets++;
-            updateProgress((loadedAssets / totalAssets) * 100);
+        const buffer = await loadAndDecodeAudio(SFX_URLS[key]);
+        if (buffer) {
+            preloadedAssets.sfx[key] = buffer;
         }
+        loadedAssets++;
+        updateProgress((loadedAssets / totalAssets) * 100);
     }
 
     // Precargar música de fondo
-    try {
-        preloadedAssets.music = await preloadAudio(MUSIC_URL);
-        preloadedAssets.music.loop = true;
-        preloadedAssets.music.volume = 0.3;
-    } catch (e) {
-        console.warn('No se pudo precargar la música');
+    const musicBuffer = await loadAndDecodeAudio(MUSIC_URL);
+    if (musicBuffer) {
+        preloadedAssets.music = musicBuffer;
     }
     loadedAssets++;
     updateProgress((loadedAssets / totalAssets) * 100);
@@ -142,5 +130,6 @@ export async function preloadAssets() {
     // Ocultar pantalla de carga
     hideLoadingScreen();
 
-    console.log('✅ Todos los recursos precargados correctamente');
+    console.log('✅ Todos los recursos precargados y decodificados', preloadedAssets);
 }
+
