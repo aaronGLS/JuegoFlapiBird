@@ -261,6 +261,7 @@ function loop(timestamp) {
 }
 
 function update(delta) {
+    bg.update(delta);  // Actualizar nubes animadas
     bird.update(delta);
     fg.update(delta);
     pipes.update(delta);

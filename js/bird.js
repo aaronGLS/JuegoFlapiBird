@@ -79,6 +79,12 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
             this.speed += BASE_GRAVITY * delta;
             this.y += this.speed * delta;
 
+            // Colisión techo - evitar que el pájaro salga por arriba
+            if (this.y - this.radius < 0) {
+                this.y = this.radius;
+                this.speed = 0; // Detener velocidad ascendente
+            }
+
             // Colisión suelo
             if (this.y + this.radius >= canvas.height - fg.h) {
                 this.y = canvas.height - fg.h - this.radius;

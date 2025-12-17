@@ -71,8 +71,8 @@ export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElemen
                 // Movimiento dependiente de delta
                 p.x -= this.dx * delta;
 
-                // Colisiones
-                let birdRadius = 10;
+                // Colisiones - usar el radio definido en bird.js para consistencia
+                let birdRadius = bird.radius;
                 let bottomPipeY = p.y + 150;
 
                 if (bird.x + birdRadius > p.x && bird.x - birdRadius < p.x + this.w) {

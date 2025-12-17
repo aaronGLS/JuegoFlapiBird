@@ -36,6 +36,16 @@ function playBuffer(buffer, loop = false, volume = 1.0) {
     source.connect(gainNode);
     gainNode.connect(masterGain);
 
+    // Limpiar nodos automáticamente cuando termine la reproducción (prevenir memory leak)
+    source.onended = () => {
+        try {
+            source.disconnect();
+            gainNode.disconnect();
+        } catch (e) {
+            // Ignorar si ya están desconectados
+        }
+    };
+
     // Iniciar reproducción
     source.start(0);
 
