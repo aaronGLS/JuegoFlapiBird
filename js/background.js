@@ -1,62 +1,124 @@
 /**
- * BACKGROUND - Fondo del juego con nubes animadas
+ * BACKGROUND - Fondo del juego con nubes animadas (sistema mejorado)
  */
 import { state } from './state.js';
 
 export function createBackground(canvas, ctx, fg) {
-    // Sistema de nubes dinámicas
+    // Sistema de nubes dinámicas mejorado
     const clouds = [];
-    const MIN_CLOUDS = 5;
-    const MAX_CLOUDS = 8;
+    const TARGET_CLOUDS = 6;          // Número objetivo de nubes
+    const MIN_SPAWN_DELAY = 80;       // Frames mínimos entre spawns
+    const MAX_SPAWN_DELAY = 200;      // Frames máximos entre spawns
+    const MIN_CLOUD_SPACING = 150;    // Espaciado mínimo entre nubes en X
 
-    // Generar nube con propiedades aleatorias
-    function generateCloud(x = null) {
-        const size = 20 + Math.random() * 40; // Tamaño variable
+    let spawnTimer = 0;
+    let nextSpawnDelay = MIN_SPAWN_DELAY;
+
+    /**
+     * Genera una nube con propiedades aleatorias
+     * @param {number|null} x - Posición X inicial (null = fuera de pantalla a la derecha)
+     * @param {boolean} randomizeOffset - Si debe añadir offset aleatorio al spawn
+     */
+    function generateCloud(x = null, randomizeOffset = true) {
+        const size = 20 + Math.random() * 45; // Tamaño: 20-65
+
+        // Calcular posición X con mejor distribución
+        let posX;
+        if (x !== null) {
+            posX = x;
+        } else if (randomizeOffset) {
+            // Spawn escalonado: más lejos del borde para evitar grupos
+            posX = canvas.width + 50 + Math.random() * 400;
+        } else {
+            posX = canvas.width + 50;
+        }
+
         return {
-            x: x !== null ? x : canvas.width + Math.random() * 200,
-            y: 50 + Math.random() * (canvas.height * 0.4), // Parte superior de la pantalla
+            x: posX,
+            y: 40 + Math.random() * (canvas.height * 0.35), // Tercio superior
             circles: [
-                { ox: 0, oy: 0, r: size * 0.8 },
-                { ox: size * 0.6, oy: -size * 0.1, r: size },
-                { ox: size * 1.2, oy: 0, r: size * 0.7 },
+                { ox: 0, oy: 0, r: size * 0.75 },
+                { ox: size * 0.55, oy: -size * 0.12, r: size * 0.95 },
+                { ox: size * 1.1, oy: 0.05 * size, r: size * 0.65 },
             ],
-            speed: 0.3 + (60 - size) / 100, // Más pequeñas = más rápidas (parallax)
-            opacity: 0.6 + Math.random() * 0.4
+            // Velocidades más variadas: 0.2 - 1.0 (mayor rango = mejor separación)
+            speed: 0.2 + Math.random() * 0.5 + (65 - size) / 80,
+            opacity: 0.5 + Math.random() * 0.5,
+            width: size * 1.8 // Ancho aproximado para cálculos de espaciado
         };
     }
 
-    // Inicializar nubes distribuidas en la pantalla
+    /**
+     * Verifica si una posición X está demasiado cerca de nubes existentes
+     */
+    function isTooCloseToOthers(x) {
+        for (const cloud of clouds) {
+            if (Math.abs(cloud.x - x) < MIN_CLOUD_SPACING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Inicializa nubes distribuidas UNIFORMEMENTE en la pantalla
+     * Evita agrupamientos usando distribución por zonas
+     */
     function initClouds() {
         clouds.length = 0;
-        const numClouds = MIN_CLOUDS + Math.floor(Math.random() * (MAX_CLOUDS - MIN_CLOUDS));
-        for (let i = 0; i < numClouds; i++) {
-            clouds.push(generateCloud(Math.random() * canvas.width));
+
+        // Dividir pantalla en zonas para distribución uniforme
+        const zoneWidth = canvas.width / TARGET_CLOUDS;
+
+        for (let i = 0; i < TARGET_CLOUDS; i++) {
+            // Cada nube aparece en su zona con algo de variación
+            const zoneStart = i * zoneWidth;
+            const x = zoneStart + Math.random() * (zoneWidth * 0.8);
+            clouds.push(generateCloud(x, false));
         }
+
+        // Resetear timer de spawn
+        spawnTimer = 0;
+        nextSpawnDelay = MIN_SPAWN_DELAY + Math.random() * (MAX_SPAWN_DELAY - MIN_SPAWN_DELAY);
     }
 
     // Inicializar al crear
     initClouds();
 
     return {
-        // Reinicializar nubes cuando cambia el tamaño del canvas
         reinitClouds: initClouds,
 
         update: function (delta) {
-            // Solo mover nubes durante el juego para efecto parallax
-            if (state.current === state.game || state.current === state.getReady) {
-                for (let i = 0; i < clouds.length; i++) {
-                    const cloud = clouds[i];
-                    cloud.x -= cloud.speed * delta;
+            // Las nubes SOLO se mueven durante el gameplay activo
+            // Esto crea la ilusión de que el pájaro avanza en el mundo
+            // En getReady, pause, o game over: las nubes quedan estáticas
+            if (state.current !== state.game) {
+                return;
+            }
 
-                    // Reciclar nube cuando sale de la pantalla
-                    if (cloud.x + 100 < 0) {
-                        clouds[i] = generateCloud();
-                    }
+            // Mover nubes existentes (simula el avance del pájaro)
+            for (let i = clouds.length - 1; i >= 0; i--) {
+                const cloud = clouds[i];
+                cloud.x -= cloud.speed * delta;
+
+                // Eliminar nubes que salieron de la pantalla
+                if (cloud.x + cloud.width < -50) {
+                    clouds.splice(i, 1);
                 }
+            }
 
-                // Mantener número mínimo de nubes
-                while (clouds.length < MIN_CLOUDS) {
-                    clouds.push(generateCloud());
+            // Sistema de spawn controlado por timer (evita grupos)
+            spawnTimer += delta;
+
+            if (spawnTimer >= nextSpawnDelay && clouds.length < TARGET_CLOUDS + 2) {
+                // Generar nueva nube solo si no hay otra muy cerca del borde derecho
+                const spawnX = canvas.width + 50 + Math.random() * 300;
+
+                if (!isTooCloseToOthers(spawnX)) {
+                    clouds.push(generateCloud(null, true));
+                    spawnTimer = 0;
+                    // Siguiente spawn con delay aleatorio
+                    nextSpawnDelay = MIN_SPAWN_DELAY + Math.random() * (MAX_SPAWN_DELAY - MIN_SPAWN_DELAY);
                 }
             }
         },
@@ -66,7 +128,7 @@ export function createBackground(canvas, ctx, fg) {
             ctx.fillStyle = "#70c5ce";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Dibujar nubes dinámicas
+            // Dibujar nubes
             ctx.fillStyle = "#ffffff";
             for (const cloud of clouds) {
                 ctx.globalAlpha = cloud.opacity;
