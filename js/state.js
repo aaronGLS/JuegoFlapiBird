@@ -7,25 +7,34 @@
 export const TARGET_FPS = 60;
 export const FRAME_DURATION = 1000 / TARGET_FPS;
 
-// ===== SISTEMA DE ESCALADO RESPONSIVO =====
-// Dimensiones de referencia (diseño base)
+// ===== SISTEMA DE ESCALADO RESPONSIVO UNIFORME =====
+// Dimensiones de referencia (diseño base - móvil vertical)
 export const REFERENCE_WIDTH = 400;
 export const REFERENCE_HEIGHT = 700;
+
+// Límites de escala para evitar elementos desproporcionados
+const MIN_SCALE = 0.8;   // Evitar elementos demasiado pequeños
+const MAX_SCALE = 2.5;   // Evitar elementos gigantes en pantallas grandes
 
 // Variables de escala (se actualizan con updateScale)
 export let scaleX = 1;
 export let scaleY = 1;
-export let scale = 1; // Factor de escala uniforme (el menor de X e Y)
+export let scale = 1; // Factor de escala uniforme (limitado y suavizado)
 
 /**
  * Actualiza los factores de escala basándose en el tamaño actual del canvas
+ * Aplica límites para mantener proporciones visuales consistentes
  * @param {number} canvasWidth - Ancho actual del canvas
  * @param {number} canvasHeight - Alto actual del canvas
  */
 export function updateScale(canvasWidth, canvasHeight) {
     scaleX = canvasWidth / REFERENCE_WIDTH;
     scaleY = canvasHeight / REFERENCE_HEIGHT;
-    scale = Math.min(scaleX, scaleY); // Usar el menor para mantener proporciones
+
+    // Usar el MENOR factor para mantener proporciones (letterboxing virtual)
+    // y aplicar límites para evitar extremos
+    const rawScale = Math.min(scaleX, scaleY);
+    scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, rawScale));
 }
 
 /**

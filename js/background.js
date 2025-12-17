@@ -166,16 +166,17 @@ export function createBackground(canvas, ctx, fg) {
             }
             ctx.globalAlpha = 1;
 
-            // Edificios de fondo (responsivos)
+            // Edificios de fondo (escalado uniforme)
             ctx.fillStyle = "#a3e8cc";
-            // Ancho de edificios proporcional al canvas
-            const buildingWidth = Math.max(40, Math.round(canvas.width * 0.08));
+            // Ancho de edificios escalado uniformemente
+            const buildingWidthBase = 35;
+            const buildingWidth = Math.max(30, Math.round(scaleUniform(buildingWidthBase)));
             const numBuildings = Math.ceil(canvas.width / buildingWidth) + 1;
 
             for (let i = 0; i < numBuildings; i++) {
-                // Altura de edificios proporcional
-                const baseHeight = canvas.height * 0.06;
-                const variation = canvas.height * 0.04;
+                // Altura de edificios escalada uniformemente
+                const baseHeight = scaleUniform(40);
+                const variation = scaleUniform(25);
                 const h = baseHeight + (Math.sin(i * 132) * variation + variation);
                 ctx.fillRect(i * buildingWidth, canvas.height - fg.h - h, buildingWidth - 5, h);
             }

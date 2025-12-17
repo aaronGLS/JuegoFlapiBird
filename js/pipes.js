@@ -5,31 +5,33 @@ import { state, score, BASE_PIPE_SPAWN, scaleByWidth, scaleByHeight, scaleUnifor
 import { sfx } from './audio.js';
 
 export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElements) {
-    // Constantes de diseño responsivas
-    const PIPE_WIDTH_RATIO = 0.13;      // Ancho de tubería = 13% del ancho del canvas
-    const GAP_RATIO = 0.22;             // Gap = 22% de la altura jugable
-    const MIN_GAP = 120;                // Gap mínimo para evitar imposibles
-    const SPEED_FACTOR = 0.0075;        // Factor de velocidad relativo al ancho
+    // ===== CONSTANTES DE DISEÑO BASE (para 400x700) =====
+    // Usamos valores absolutos que se escalan uniformemente
+    const PIPE_WIDTH_BASE = 52;         // Ancho base de tubería en píxeles
+    const GAP_BASE = 140;               // Gap base entre tuberías en píxeles
+    const MIN_GAP = 100;                // Gap mínimo absoluto
+    const MAX_GAP = 200;                // Gap máximo absoluto
+    const SPEED_BASE = 3;               // Velocidad base en píxeles por frame
 
     return {
         position: [],
         spawnTimer: 0,
 
-        // Propiedades calculadas responsivamente
+        // ===== PROPIEDADES CON ESCALADO UNIFORME =====
         get w() {
-            return Math.round(canvas.width * PIPE_WIDTH_RATIO);
+            // Ancho escalado uniformemente - se ve proporcional en todas las pantallas
+            return Math.round(scaleUniform(PIPE_WIDTH_BASE));
         },
 
         get dx() {
-            // Velocidad base escalada por ancho para tiempo de reacción consistente
-            return Math.max(2, canvas.width * SPEED_FACTOR);
+            // Velocidad escalada uniformemente para consistencia
+            return Math.max(2, scaleUniform(SPEED_BASE));
         },
 
         get gap() {
-            // Gap proporcional a la altura jugable
-            const playableHeight = canvas.height - fg.h;
-            const calculatedGap = Math.round(playableHeight * GAP_RATIO);
-            return Math.max(MIN_GAP, calculatedGap);
+            // Gap escalado uniformemente con límites para jugabilidad
+            const scaledGap = Math.round(scaleUniform(GAP_BASE));
+            return Math.max(MIN_GAP, Math.min(MAX_GAP, scaledGap));
         },
 
         draw: function () {
@@ -80,8 +82,9 @@ export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElemen
             const currentGap = this.gap;
             const currentDx = this.dx;
 
-            // Spawn rate ajustado al ancho de pantalla para mantener espaciado consistente
-            const adjustedSpawnRate = BASE_PIPE_SPAWN * Math.max(0.7, canvas.width / 400);
+            // Spawn rate FIJO para consistencia - mismo ritmo en todas las pantallas
+            // BASE_PIPE_SPAWN = 100 frames (a 60fps = ~1.67 segundos entre tuberías)
+            const adjustedSpawnRate = BASE_PIPE_SPAWN;
 
             // Spawn logic usando temporizador acumulativo
             this.spawnTimer += delta;

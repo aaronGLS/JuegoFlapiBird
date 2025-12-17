@@ -128,3 +128,185 @@ input[type="range"] {
     -webkit-text-stroke: 1px #543847;
     margin-top: 1rem;
 }
+
+/* ===== ESCALADO RESPONSIVO PARA PANTALLAS GRANDES ===== */
+/* Escalar todos los elementos de UI proporcionalmente */
+
+/* Pantallas medianas (tablets landscape, monitores pequeños) */
+@media (min-width: 768px) and (min-height: 600px) {
+    #start-screen h1 {
+        font-size: 5rem !important;
+    }
+
+    #start-screen .bg-white\/90 {
+        transform: scale(1.3);
+    }
+
+    #score-hud #current-score {
+        font-size: 5rem !important;
+    }
+
+    #pause-btn,
+    #music-btn {
+        width: 3.5rem !important;
+        height: 3.5rem !important;
+        font-size: 1.75rem !important;
+    }
+
+    #volume-slider {
+        width: 6rem !important;
+    }
+
+    #pause-screen>div {
+        transform: scale(1.3);
+    }
+
+    #game-over-screen h2 {
+        font-size: 5rem !important;
+    }
+
+    #game-over-screen .bg-\[\#ded895\] {
+        transform: scale(1.3);
+    }
+
+    #restart-btn {
+        transform: scale(1.3);
+    }
+
+    .loading-title {
+        font-size: 4rem;
+    }
+
+    .progress-container {
+        max-width: 400px;
+        height: 40px;
+    }
+}
+
+/* Pantallas grandes (monitores HD) */
+@media (min-width: 1200px) and (min-height: 800px) {
+    #start-screen h1 {
+        font-size: 6rem !important;
+    }
+
+    #start-screen .bg-white\/90 {
+        transform: scale(1.6);
+    }
+
+    #score-hud #current-score {
+        font-size: 6rem !important;
+    }
+
+    #pause-btn,
+    #music-btn {
+        width: 4rem !important;
+        height: 4rem !important;
+        font-size: 2rem !important;
+    }
+
+    #music-controls {
+        top: 1.5rem !important;
+        left: 1.5rem !important;
+        gap: 0.75rem !important;
+    }
+
+    #pause-btn {
+        top: 1.5rem !important;
+        right: 1.5rem !important;
+    }
+
+    #volume-slider {
+        width: 8rem !important;
+        height: 0.5rem !important;
+    }
+
+    #pause-screen>div {
+        transform: scale(1.6);
+    }
+
+    #game-over-screen h2 {
+        font-size: 6rem !important;
+    }
+
+    #game-over-screen .bg-\[\#ded895\] {
+        transform: scale(1.6);
+    }
+
+    #restart-btn {
+        transform: scale(1.6);
+        margin-top: 3rem !important;
+    }
+
+    .loading-title {
+        font-size: 5rem;
+    }
+
+    .progress-container {
+        max-width: 500px;
+        height: 50px;
+    }
+}
+
+/* Pantallas muy grandes (4K, ultrawide) */
+@media (min-width: 1800px) and (min-height: 900px) {
+    #start-screen h1 {
+        font-size: 7rem !important;
+    }
+
+    #start-screen .bg-white\/90 {
+        transform: scale(2);
+    }
+
+    #score-hud #current-score {
+        font-size: 7rem !important;
+    }
+
+    #pause-btn,
+    #music-btn {
+        width: 5rem !important;
+        height: 5rem !important;
+        font-size: 2.5rem !important;
+    }
+
+    #music-controls {
+        top: 2rem !important;
+        left: 2rem !important;
+        gap: 1rem !important;
+    }
+
+    #pause-btn {
+        top: 2rem !important;
+        right: 2rem !important;
+    }
+
+    #volume-slider {
+        width: 10rem !important;
+        height: 0.6rem !important;
+    }
+
+    #pause-screen>div {
+        transform: scale(2);
+    }
+
+    #game-over-screen h2 {
+        font-size: 7rem !important;
+    }
+
+    #game-over-screen .bg-\[\#ded895\] {
+        transform: scale(2);
+    }
+
+    #restart-btn {
+        transform: scale(2);
+        margin-top: 4rem !important;
+    }
+
+    .loading-title {
+        font-size: 6rem;
+    }
+
+    .progress-container {
+        max-width: 600px;
+        height: 60px;
+    }
+}

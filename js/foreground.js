@@ -1,21 +1,22 @@
 /**
- * FOREGROUND - Suelo animado del juego (RESPONSIVO)
+ * FOREGROUND - Suelo animado del juego (ESCALADO UNIFORME)
  */
-import { state, scaleByWidth } from './state.js';
+import { state, scaleUniform } from './state.js';
 
 export function createForeground(canvas, ctx) {
-    // Altura base del foreground como porcentaje de la altura del canvas
-    const HEIGHT_RATIO = 0.16; // 16% de la altura del canvas
+    // ===== CONSTANTES BASE (para 400x700) =====
+    const HEIGHT_BASE = 112;    // Altura base del foreground en píxeles
+    const SPEED_BASE = 3;       // Velocidad base del suelo
 
     return {
-        // Altura calculada dinámicamente
+        // Altura escalada uniformemente
         get h() {
-            return Math.round(canvas.height * HEIGHT_RATIO);
+            return Math.round(scaleUniform(HEIGHT_BASE));
         },
         x: 0,
-        // Velocidad escalada por ancho para consistencia
+        // Velocidad escalada uniformemente
         get dx() {
-            return scaleByWidth(3);
+            return scaleUniform(SPEED_BASE);
         },
 
         draw: function () {
@@ -42,8 +43,8 @@ export function createForeground(canvas, ctx) {
 
             ctx.strokeStyle = "#d0c874";
             ctx.lineWidth = 2;
-            // Espaciado escalado
-            const spacing = Math.max(15, Math.round(scaleByWidth(20)));
+            // Espaciado escalado uniformemente
+            const spacing = Math.max(15, Math.round(scaleUniform(20)));
             const offset = this.x % spacing;
 
             for (let i = -spacing; i < canvas.width + spacing; i += spacing) {
@@ -61,7 +62,7 @@ export function createForeground(canvas, ctx) {
 
         update: function (delta) {
             if (state.current == state.game) {
-                const spacing = Math.max(15, Math.round(scaleByWidth(20)));
+                const spacing = Math.max(15, Math.round(scaleUniform(20)));
                 this.x = (this.x + this.dx * delta) % spacing;
             }
         }
