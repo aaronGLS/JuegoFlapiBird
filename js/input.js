@@ -1,7 +1,7 @@
 /**
  * INPUT - Manejadores de entrada del juego
  */
-import { state, isPaused, isLoading } from './state.js';
+import { state, isPaused, isLoading, updateScale } from './state.js';
 import { music, resumeAudioContext } from './audio.js';
 
 export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallback, handlePauseCallback) {
@@ -94,6 +94,8 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        // Actualizar factores de escala globales
+        updateScale(canvas.width, canvas.height);
         bird.x = canvas.width * 0.3;
     }
 

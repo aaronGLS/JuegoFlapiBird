@@ -1,48 +1,70 @@
 /**
- * BACKGROUND - Fondo del juego con nubes animadas (sistema mejorado)
+ * BACKGROUND - Fondo del juego con nubes animadas (RESPONSIVO)
  */
-import { state } from './state.js';
+import { state, scaleUniform, scaleByWidth } from './state.js';
 
 export function createBackground(canvas, ctx, fg) {
-    // Sistema de nubes dinámicas mejorado
+    // Sistema de nubes dinámicas mejorado y responsivo
     const clouds = [];
     const TARGET_CLOUDS = 6;          // Número objetivo de nubes
+
+    // Constantes de spawn responsivas
     const MIN_SPAWN_DELAY = 80;       // Frames mínimos entre spawns
     const MAX_SPAWN_DELAY = 200;      // Frames máximos entre spawns
-    const MIN_CLOUD_SPACING = 150;    // Espaciado mínimo entre nubes en X
+
+    // Tamaños base de nubes (se escalarán)
+    const MIN_CLOUD_SIZE_BASE = 20;
+    const MAX_CLOUD_SIZE_BASE = 65;
 
     let spawnTimer = 0;
     let nextSpawnDelay = MIN_SPAWN_DELAY;
 
     /**
-     * Genera una nube con propiedades aleatorias
+     * Obtiene el espaciado mínimo escalado entre nubes
+     */
+    function getMinCloudSpacing() {
+        return Math.round(scaleByWidth(150));
+    }
+
+    /**
+     * Genera una nube con propiedades aleatorias (responsiva)
      * @param {number|null} x - Posición X inicial (null = fuera de pantalla a la derecha)
      * @param {boolean} randomizeOffset - Si debe añadir offset aleatorio al spawn
      */
     function generateCloud(x = null, randomizeOffset = true) {
-        const size = 20 + Math.random() * 45; // Tamaño: 20-65
+        // Tamaño escalado uniformemente
+        const minSize = scaleUniform(MIN_CLOUD_SIZE_BASE);
+        const maxSize = scaleUniform(MAX_CLOUD_SIZE_BASE);
+        const size = minSize + Math.random() * (maxSize - minSize);
 
         // Calcular posición X con mejor distribución
         let posX;
+        const spawnMargin = scaleByWidth(50);
+        const randomRange = scaleByWidth(400);
+
         if (x !== null) {
             posX = x;
         } else if (randomizeOffset) {
             // Spawn escalonado: más lejos del borde para evitar grupos
-            posX = canvas.width + 50 + Math.random() * 400;
+            posX = canvas.width + spawnMargin + Math.random() * randomRange;
         } else {
-            posX = canvas.width + 50;
+            posX = canvas.width + spawnMargin;
         }
+
+        // Posición Y en el tercio superior (responsivo)
+        const minY = canvas.height * 0.05;
+        const maxY = canvas.height * 0.35;
 
         return {
             x: posX,
-            y: 40 + Math.random() * (canvas.height * 0.35), // Tercio superior
+            y: minY + Math.random() * (maxY - minY),
             circles: [
                 { ox: 0, oy: 0, r: size * 0.75 },
                 { ox: size * 0.55, oy: -size * 0.12, r: size * 0.95 },
                 { ox: size * 1.1, oy: 0.05 * size, r: size * 0.65 },
             ],
-            // Velocidades más variadas: 0.2 - 1.0 (mayor rango = mejor separación)
-            speed: 0.2 + Math.random() * 0.5 + (65 - size) / 80,
+            // Velocidades más variadas, escaladas por tamaño de referencia
+            speed: scaleByWidth(0.2 + Math.random() * 0.5 + (maxSize - size) / 80),
             opacity: 0.5 + Math.random() * 0.5,
             width: size * 1.8 // Ancho aproximado para cálculos de espaciado
         };
@@ -52,8 +74,9 @@ export function createBackground(canvas, ctx, fg) {
      * Verifica si una posición X está demasiado cerca de nubes existentes
      */
     function isTooCloseToOthers(x) {
+        const minSpacing = getMinCloudSpacing();
         for (const cloud of clouds) {
-            if (Math.abs(cloud.x - x) < MIN_CLOUD_SPACING) {
+            if (Math.abs(cloud.x - x) < minSpacing) {
                 return true;
             }
         }
@@ -112,7 +135,9 @@ export function createBackground(canvas, ctx, fg) {
 
             if (spawnTimer >= nextSpawnDelay && clouds.length < TARGET_CLOUDS + 2) {
                 // Generar nueva nube solo si no hay otra muy cerca del borde derecho
-                const spawnX = canvas.width + 50 + Math.random() * 300;
+                const spawnMargin = scaleByWidth(50);
+                const randomOffset = scaleByWidth(300);
+                const spawnX = canvas.width + spawnMargin + Math.random() * randomOffset;
 
                 if (!isTooCloseToOthers(spawnX)) {
                     clouds.push(generateCloud(null, true));
@@ -141,14 +166,20 @@ export function createBackground(canvas, ctx, fg) {
             }
             ctx.globalAlpha = 1;
 
-            // Edificios de fondo
+            // Edificios de fondo (responsivos)
             ctx.fillStyle = "#a3e8cc";
-            const buildingWidth = 60;
+            // Ancho de edificios proporcional al canvas
+            const buildingWidth = Math.max(40, Math.round(canvas.width * 0.08));
             const numBuildings = Math.ceil(canvas.width / buildingWidth) + 1;
+
             for (let i = 0; i < numBuildings; i++) {
-                const h = 50 + (Math.sin(i * 132) * 20 + 20);
+                // Altura de edificios proporcional
+                const baseHeight = canvas.height * 0.06;
+                const variation = canvas.height * 0.04;
+                const h = baseHeight + (Math.sin(i * 132) * variation + variation);
                 ctx.fillRect(i * buildingWidth, canvas.height - fg.h - h, buildingWidth - 5, h);
             }
         }
     };
 }
+

@@ -7,6 +7,54 @@
 export const TARGET_FPS = 60;
 export const FRAME_DURATION = 1000 / TARGET_FPS;
 
+// ===== SISTEMA DE ESCALADO RESPONSIVO =====
+// Dimensiones de referencia (diseño base)
+export const REFERENCE_WIDTH = 400;
+export const REFERENCE_HEIGHT = 700;
+
+// Variables de escala (se actualizan con updateScale)
+export let scaleX = 1;
+export let scaleY = 1;
+export let scale = 1; // Factor de escala uniforme (el menor de X e Y)
+
+/**
+ * Actualiza los factores de escala basándose en el tamaño actual del canvas
+ * @param {number} canvasWidth - Ancho actual del canvas
+ * @param {number} canvasHeight - Alto actual del canvas
+ */
+export function updateScale(canvasWidth, canvasHeight) {
+    scaleX = canvasWidth / REFERENCE_WIDTH;
+    scaleY = canvasHeight / REFERENCE_HEIGHT;
+    scale = Math.min(scaleX, scaleY); // Usar el menor para mantener proporciones
+}
+
+/**
+ * Escala un valor basándose en el ancho de referencia
+ * @param {number} value - Valor en píxeles de referencia
+ * @returns {number} Valor escalado
+ */
+export function scaleByWidth(value) {
+    return value * scaleX;
+}
+
+/**
+ * Escala un valor basándose en la altura de referencia
+ * @param {number} value - Valor en píxeles de referencia
+ * @returns {number} Valor escalado
+ */
+export function scaleByHeight(value) {
+    return value * scaleY;
+}
+
+/**
+ * Escala un valor uniformemente (mantiene proporciones)
+ * @param {number} value - Valor en píxeles de referencia
+ * @returns {number} Valor escalado uniformemente
+ */
+export function scaleUniform(value) {
+    return value * scale;
+}
+
 // Valores base (relativos a 60fps)
 export const BASE_SPEED = 3;
 export const BASE_GRAVITY = 0.25;
