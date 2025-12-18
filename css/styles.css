@@ -1,13 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Press+Start+2P&display=swap');
+
+:root {
+    --font-pixel: 'Press Start 2P', cursive;
+    --font-cartoon: 'Fredoka One', cursive;
+    --color-primary: #e86101;
+    --color-secondary: #f4ce42;
+    --color-accent: #73bf2e;
+    --color-dark: #543847;
+    --color-light: #ded895;
+    --shadow-depth: 4px;
+}
 
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #333;
-    font-family: 'VT323', monospace;
+    font-family: var(--font-cartoon);
     touch-action: manipulation;
-    /* Permite taps en botones, desactiva zoom */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -24,34 +34,127 @@ canvas {
     display: block;
     width: 100%;
     height: 100%;
+    /* Pixel art crispy en PC de escritorio */
     image-rendering: pixelated;
     touch-action: none;
-    /* Solo el canvas bloquea gestos */
 }
 
-/* Asegurar que los botones sean táctiles */
-button,
-input[type="range"] {
-    touch-action: manipulation;
-    cursor: pointer;
+/* === TEXTO Y TIPOGRAFÍA === */
+.pixel-font {
+    font-family: var(--font-pixel);
+    letter-spacing: -1px;
 }
 
 .text-stroke {
     -webkit-text-stroke: 2px black;
-    text-shadow: 2px 2px 0 #000;
+    text-shadow: 3px 3px 0 #000;
 }
 
 .text-stroke-sm {
     -webkit-text-stroke: 1px black;
-    text-shadow: 1px 1px 0 #000;
+    text-shadow: 1.5px 1.5px 0 #000;
 }
 
-#flash-overlay {
+/* === BOTONES "CLICKY" 3D === */
+.btn-3d {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-cartoon);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    border: 2px solid var(--color-dark);
+    border-radius: 12px;
+    box-shadow: 0 var(--shadow-depth) 0 var(--color-dark),
+        0 calc(var(--shadow-depth) + 4px) 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.1s ease;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.btn-3d:active {
+    box-shadow: 0 0 0 var(--color-dark);
+    transform: translateY(var(--shadow-depth));
+}
+
+.btn-orange {
+    background: var(--color-primary);
+}
+
+.btn-orange:hover {
+    background: #ff7f27;
+}
+
+.btn-green {
+    background: var(--color-accent);
+}
+
+.btn-green:hover {
+    background: #9ce659;
+}
+
+.btn-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    color: var(--color-dark);
+    font-size: 1.5rem;
+    box-shadow: 0 var(--shadow-depth) 0 var(--color-dark), 0 6px 6px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--color-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.btn-icon:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.btn-icon:active {
+    box-shadow: 0 0 0 var(--color-dark);
+    transform: translateY(var(--shadow-depth));
+}
+
+/* === TRANSICIONES Y ANIMACIONES === */
+
+/* Clase para ocultar elementos con fade */
+.fade-hidden {
+    opacity: 0 !important;
     pointer-events: none;
-    transition: opacity 0.1s ease-out;
+    transform: translateY(20px);
 }
 
-/* ===== PANTALLA DE CARGA ===== */
+/* Clase base para elementos animados */
+.ui-layer {
+    transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animación de flotar suave para el logo */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* === PANTALLA DE CARGA === */
 #loading-screen {
     position: absolute;
     inset: 0;
@@ -61,14 +164,15 @@ input[type="range"] {
     justify-content: center;
     background: linear-gradient(180deg, #4ec0ca 0%, #70c5ce 50%, #ded895 100%);
     z-index: 100;
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
 .loading-title {
+    font-family: var(--font-pixel);
     font-size: 3rem;
     color: #fff;
-    -webkit-text-stroke: 2px #543847;
-    text-shadow: 3px 3px 0 #543847;
+    -webkit-text-stroke: 2px var(--color-dark);
+    text-shadow: 4px 4px 0 var(--color-dark);
     margin-bottom: 2rem;
     animation: pulse 1.5s ease-in-out infinite;
 }
@@ -89,7 +193,7 @@ input[type="range"] {
     width: 80%;
     max-width: 300px;
     height: 30px;
-    background: #543847;
+    background: var(--color-dark);
     border-radius: 15px;
     padding: 4px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -97,7 +201,7 @@ input[type="range"] {
 
 .progress-bar {
     height: 100%;
-    background: #73bf2e;
+    background: var(--color-accent);
     border-radius: 12px;
     width: 0%;
     transition: width 0.3s ease-out;
@@ -105,6 +209,7 @@ input[type="range"] {
     overflow: hidden;
 }
 
+/* Efecto de brillo en la barra */
 .progress-bar::after {
     content: '';
     position: absolute;
@@ -123,190 +228,378 @@ input[type="range"] {
 }
 
 .progress-text {
-    font-size: 1.5rem;
-    color: #fff;
-    -webkit-text-stroke: 1px #543847;
-    margin-top: 1rem;
+    font-family: var(--font-pixel);
+    font-size: 1.2rem;
+    color: white;
+    margin-top: 10px;
+    text-shadow: 2px 2px 0 var(--color-dark);
 }
 
-/* ===== ESCALADO RESPONSIVO PARA PANTALLAS GRANDES ===== */
-/* Escalar todos los elementos de UI proporcionalmente */
+/* === GAME OVER PANEL === */
+.panel-box {
+    background: var(--color-light);
+    border: 4px solid var(--color-dark);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    position: relative;
+    width: 300px;
+    max-width: 90vw;
+}
 
-/* Pantallas medianas (tablets landscape, monitores pequeños) */
-@media (min-width: 768px) and (min-height: 600px) {
-    #start-screen h1 {
-        font-size: 5rem !important;
-    }
+.panel-inner {
+    border: 2px dashed #9e9a68;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+}
 
-    #start-screen .bg-white\/90 {
-        transform: scale(1.3);
-    }
+/* === MEDALLAS === */
+.medal-slot {
+    width: 60px;
+    height: 60px;
+    background: #bdae79;
+    border-radius: 50%;
+    border: 4px solid #9e9a68;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
-    #score-hud #current-score {
-        font-size: 5rem !important;
-    }
+.medal-shine {
+    position: absolute;
+    top: 10%;
+    left: 20%;
+    width: 20%;
+    height: 20%;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+}
 
-    #pause-btn,
-    #music-btn {
-        width: 3.5rem !important;
-        height: 3.5rem !important;
-        font-size: 1.75rem !important;
-    }
+/* === SLIDER PERSONALIZADO === */
+input[type=range] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+}
 
-    #volume-slider {
-        width: 6rem !important;
-    }
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--color-dark);
+    margin-top: -8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
 
-    #pause-screen>div {
-        transform: scale(1.3);
-    }
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
 
-    #game-over-screen h2 {
-        font-size: 5rem !important;
-    }
+/* === TÍTULO DEL JUEGO === */
+.game-title {
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
 
-    #game-over-screen .bg-\[\#ded895\] {
-        transform: scale(1.3);
-    }
+/* === RESPONSIVIDAD (Media Queries) === */
 
-    #restart-btn {
-        transform: scale(1.3);
-    }
+/* 
+ * Sistema responsivo basado en:
+ * - Móvil: Orientación portrait (vertical)
+ * - PC/Tablet: Orientación landscape (horizontal)
+ * - Uso de clamp() para escalado fluido
+ */
 
+/* --- Variables de escalado responsivo --- */
+:root {
+    /* Tamaños base para móvil vertical */
+    --ui-scale-mobile: 1;
+    /* Tamaños base para PC horizontal */
+    --ui-scale-desktop: 1.3;
+}
+
+/* === MÓVIL VERTICAL (Portrait) === */
+@media (orientation: portrait) {
+
+    /* Título de carga - ajustado para no salirse del viewport */
     .loading-title {
-        font-size: 4rem;
+        font-size: clamp(1.5rem, 8vw, 3rem);
+        padding: 0 1rem;
+        text-align: center;
+        word-break: break-word;
     }
 
+    /* Barra de progreso */
     .progress-container {
+        width: 70%;
+        max-width: 280px;
+        height: 24px;
+    }
+
+    .progress-text {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
+
+    /* Botones de icono */
+    .btn-icon {
+        width: clamp(40px, 10vw, 50px);
+        height: clamp(40px, 10vw, 50px);
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+    }
+
+    /* Panel de puntuación y game over */
+    .panel-box {
+        width: clamp(250px, 85vw, 320px);
+        padding: 6px;
+    }
+
+    .panel-inner {
+        padding: 12px;
+    }
+
+    /* Medallas */
+    .medal-slot {
+        width: clamp(45px, 12vw, 60px);
+        height: clamp(45px, 12vw, 60px);
+    }
+
+    /* Botones 3D */
+    .btn-3d {
+        font-size: clamp(0.9rem, 4vw, 1.2rem);
+        padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 5vw, 1.5rem);
+    }
+
+    /* Puntuación actual HUD */
+    #score-hud .current-score {
+        font-size: clamp(2.5rem, 12vw, 4rem) !important;
+    }
+
+    /* Título del juego (FLAPPY BIRD) */
+    .game-title {
+        font-size: clamp(1.8rem, 10vw, 3.5rem) !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Texto del panel de inicio */
+    .panel-box .panel-inner p:first-child {
+        font-size: clamp(1rem, 4vw, 1.5rem) !important;
+    }
+
+    .panel-box .panel-inner p:last-child {
+        font-size: clamp(0.8rem, 3vw, 1.2rem) !important;
+    }
+
+    /* Título PAUSA */
+    #pause-screen h2 {
+        font-size: clamp(2rem, 10vw, 3rem) !important;
+        margin-bottom: 1rem !important;
+    }
+
+    #pause-screen p {
+        font-size: clamp(0.9rem, 4vw, 1.2rem) !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Título GAME OVER */
+    #game-over-screen h2 {
+        font-size: clamp(2rem, 10vw, 3.5rem) !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Etiquetas MEDALLA, SCORE, BEST */
+    #game-over-screen .text-stroke-sm {
+        font-size: clamp(0.6rem, 2.5vw, 0.9rem) !important;
+    }
+
+    /* Puntuaciones finales */
+    #final-score,
+    #best-score {
+        font-size: clamp(1.5rem, 8vw, 2.5rem) !important;
+    }
+
+    /* Slider de volumen */
+    #volume-slider {
+        width: clamp(60px, 20vw, 100px);
+    }
+
+    /* Controles de música */
+    #music-controls {
+        gap: 0.3rem;
+    }
+}
+
+/* === PC / TABLET HORIZONTAL (Landscape) === */
+@media (orientation: landscape) {
+
+    /* Título de carga */
+    .loading-title {
+        font-size: clamp(3rem, 5vw, 5rem);
+    }
+
+    /* Barra de progreso */
+    .progress-container {
+        width: 50%;
         max-width: 400px;
-        height: 40px;
+        height: 35px;
+    }
+
+    .progress-text {
+        font-size: clamp(1rem, 1.5vw, 1.5rem);
+    }
+
+    /* Botones de icono */
+    .btn-icon {
+        width: clamp(50px, 5vw, 70px);
+        height: clamp(50px, 5vw, 70px);
+        font-size: clamp(1.5rem, 2vw, 2.2rem);
+    }
+
+    /* Panel de puntuación y game over */
+    .panel-box {
+        width: clamp(300px, 30vw, 450px);
+        padding: 10px;
+    }
+
+    .panel-inner {
+        padding: 18px;
+    }
+
+    /* Medallas */
+    .medal-slot {
+        width: clamp(60px, 6vw, 90px);
+        height: clamp(60px, 6vw, 90px);
+    }
+
+    /* Botones 3D */
+    .btn-3d {
+        font-size: clamp(1.2rem, 1.5vw, 1.8rem);
+        padding: clamp(0.75rem, 1.5vw, 1.2rem) clamp(1.5rem, 3vw, 3rem);
+    }
+
+    /* Puntuación actual HUD */
+    #score-hud .current-score {
+        font-size: clamp(4rem, 6vw, 7rem) !important;
+    }
+
+    /* Título del juego (FLAPPY BIRD) */
+    .game-title {
+        font-size: clamp(3rem, 5vw, 5rem) !important;
+        margin-bottom: 2rem !important;
+    }
+
+    /* Texto del panel de inicio */
+    .panel-box .panel-inner p:first-child {
+        font-size: clamp(1.3rem, 1.5vw, 2rem) !important;
+    }
+
+    .panel-box .panel-inner p:last-child {
+        font-size: clamp(1rem, 1.2vw, 1.5rem) !important;
+    }
+
+    /* Título PAUSA */
+    #pause-screen h2 {
+        font-size: clamp(3rem, 4vw, 5rem) !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    #pause-screen p {
+        font-size: clamp(1.2rem, 1.5vw, 1.8rem) !important;
+        margin-bottom: 2rem !important;
+    }
+
+    /* Título GAME OVER */
+    #game-over-screen h2 {
+        font-size: clamp(3.5rem, 5vw, 6rem) !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Etiquetas MEDALLA, SCORE, BEST */
+    #game-over-screen .text-stroke-sm {
+        font-size: clamp(0.8rem, 1vw, 1.2rem) !important;
+    }
+
+    /* Puntuaciones finales */
+    #final-score,
+    #best-score {
+        font-size: clamp(2.5rem, 3vw, 4rem) !important;
+    }
+
+    /* Slider de volumen */
+    #volume-slider {
+        width: clamp(80px, 10vw, 150px);
+    }
+
+    /* Controles de música */
+    #music-controls {
+        gap: 0.5rem;
     }
 }
 
-/* Pantallas grandes (monitores HD) */
-@media (min-width: 1200px) and (min-height: 800px) {
-    #start-screen h1 {
-        font-size: 6rem !important;
-    }
-
-    #start-screen .bg-white\/90 {
-        transform: scale(1.6);
-    }
-
-    #score-hud #current-score {
-        font-size: 6rem !important;
-    }
-
-    #pause-btn,
-    #music-btn {
-        width: 4rem !important;
-        height: 4rem !important;
-        font-size: 2rem !important;
-    }
-
-    #music-controls {
-        top: 1.5rem !important;
-        left: 1.5rem !important;
-        gap: 0.75rem !important;
-    }
-
-    #pause-btn {
-        top: 1.5rem !important;
-        right: 1.5rem !important;
-    }
-
-    #volume-slider {
-        width: 8rem !important;
-        height: 0.5rem !important;
-    }
-
-    #pause-screen>div {
-        transform: scale(1.6);
-    }
-
-    #game-over-screen h2 {
-        font-size: 6rem !important;
-    }
-
-    #game-over-screen .bg-\[\#ded895\] {
-        transform: scale(1.6);
-    }
-
-    #restart-btn {
-        transform: scale(1.6);
-        margin-top: 3rem !important;
-    }
-
+/* === PANTALLAS MUY PEQUEÑAS (ancho < 360px) === */
+@media (max-width: 360px) and (orientation: portrait) {
     .loading-title {
-        font-size: 5rem;
+        font-size: 1.3rem;
     }
 
-    .progress-container {
-        max-width: 500px;
-        height: 50px;
+    .panel-box {
+        width: 95vw;
+    }
+
+    .game-title {
+        font-size: 1.5rem !important;
+    }
+
+    .btn-3d {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
     }
 }
 
-/* Pantallas muy grandes (4K, ultrawide) */
-@media (min-width: 1800px) and (min-height: 900px) {
-    #start-screen h1 {
-        font-size: 7rem !important;
-    }
-
-    #start-screen .bg-white\/90 {
-        transform: scale(2);
-    }
-
-    #score-hud #current-score {
-        font-size: 7rem !important;
-    }
-
-    #pause-btn,
-    #music-btn {
-        width: 5rem !important;
-        height: 5rem !important;
-        font-size: 2.5rem !important;
-    }
-
-    #music-controls {
-        top: 2rem !important;
-        left: 2rem !important;
-        gap: 1rem !important;
-    }
-
-    #pause-btn {
-        top: 2rem !important;
-        right: 2rem !important;
-    }
-
-    #volume-slider {
-        width: 10rem !important;
-        height: 0.6rem !important;
-    }
-
-    #pause-screen>div {
-        transform: scale(2);
-    }
-
-    #game-over-screen h2 {
-        font-size: 7rem !important;
-    }
-
-    #game-over-screen .bg-\[\#ded895\] {
-        transform: scale(2);
-    }
-
-    #restart-btn {
-        transform: scale(2);
-        margin-top: 4rem !important;
-    }
-
+/* === PANTALLAS GRANDES (> 1600px) === */
+@media (min-width: 1600px) and (orientation: landscape) {
     .loading-title {
         font-size: 6rem;
     }
 
-    .progress-container {
-        max-width: 600px;
-        height: 60px;
+    .btn-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+    }
+
+    .panel-box {
+        width: 500px;
+        padding: 14px;
+    }
+
+    .medal-slot {
+        width: 100px;
+        height: 100px;
+    }
+
+    #score-hud .current-score {
+        font-size: 8rem !important;
+    }
+
+    .game-title {
+        font-size: 6rem !important;
+    }
+
+    .btn-3d {
+        font-size: 2rem;
+        padding: 1.5rem 4rem;
     }
 }

@@ -55,44 +55,44 @@ setupInput(canvas, bird, startScreen, scoreHud, resetGame, handlePause);
 /**
  * Helper para eventos táctiles móviles
  * Maneja tanto touch como click evitando eventos duplicados
- * Usa stopPropagation para evitar que el evento llegue al inputHandler del juego
+ * Usa stopPropagation y preventDefault para evitar que el evento llegue al inputHandler del juego
  */
 function addMobileClickListener(element, handler) {
-    let touchMoved = false;
     let touchHandled = false;
 
-    element.addEventListener('touchstart', (e) => {
-        touchMoved = false;
-        touchHandled = false;
-        e.stopPropagation(); // Evitar que el touch active el salto del pájaro
-    }, { passive: true });
-
-    element.addEventListener('touchmove', () => {
-        touchMoved = true;
-    }, { passive: true });
-
+    // Manejar touch para dispositivos móviles
     element.addEventListener('touchend', (e) => {
-        if (!touchMoved) {
-            e.preventDefault();
-            e.stopPropagation(); // Evitar propagación al juego
-            touchHandled = true;
-            handler(e);
-        }
-    });
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        touchHandled = true;
+        handler(e);
+        // Reset flag después de un delay para evitar el click fantasma
+        setTimeout(() => {
+            touchHandled = false;
+        }, 400);
+    }, { passive: false });
 
+    // Manejar click para PC (solo si no fue touch)
     element.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evitar que el click active el salto del pájaro
-        // Solo ejecutar si no fue manejado por touch
+        e.stopPropagation();
         if (!touchHandled) {
             handler(e);
         }
-        touchHandled = false;
     });
 
-    // También prevenir mousedown para evitar el salto
+    // Prevenir que mousedown active el salto del pájaro
     element.addEventListener('mousedown', (e) => {
         e.stopPropagation();
     });
+
+    // Prevenir que touchstart active el salto del pájaro
+    // IMPORTANTE: passive: false permite usar preventDefault()
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }, { passive: false });
 }
 
 // Configurar botón de reinicio (compatible con móvil)
@@ -117,8 +117,8 @@ function handlePause() {
 
     if (state.current === state.game && !isPaused()) {
         setPaused(true);
-        pauseScreen.classList.remove('hidden');
-        pauseBtn.classList.add('hidden');
+        pauseScreen.classList.remove('fade-hidden');
+        pauseBtn.classList.add('fade-hidden');
         music.pause();
     }
 }
@@ -126,8 +126,8 @@ function handlePause() {
 function handleResume() {
     if (isPaused()) {
         setPaused(false);
-        pauseScreen.classList.add('hidden');
-        pauseBtn.classList.remove('hidden');
+        pauseScreen.classList.add('fade-hidden');
+        pauseBtn.classList.remove('fade-hidden');
         lastTime = 0; // Reset delta time para evitar saltos
         if (!music.isMuted) {
             music.resume();
@@ -204,9 +204,10 @@ function gameOver() {
     }
 
     score.draw(currentScoreEl, finalScoreEl, bestScoreEl);
-    scoreHud.classList.add('hidden');
-    pauseBtn.classList.add('hidden');
-    gameOverScreen.classList.remove('hidden');
+    scoreHud.classList.add('fade-hidden');
+    pauseBtn.classList.add('fade-hidden');
+    gameOverScreen.classList.remove('fade-hidden');
+    // Forzar reflow para animación si fuera necesario, pero CSS transition se encarga
     restartBtn.focus();
 }
 
@@ -220,11 +221,14 @@ function resetGame() {
     setPaused(false);
     resetFrames();
 
-    gameOverScreen.classList.add('hidden');
-    pauseScreen.classList.add('hidden');
-    startScreen.classList.remove('opacity-0');
-    scoreHud.classList.add('hidden');
-    pauseBtn.classList.add('hidden');
+    gameOverScreen.classList.add('fade-hidden');
+    pauseScreen.classList.add('fade-hidden');
+    startScreen.classList.remove('opacity-0'); // startScreen usa opacity simple o removemos si usamos ui-layer
+    // Mejor resetear start-screen a visible si usamos fade-hidden
+    startScreen.classList.remove('fade-hidden'); // Asumiendo que start-screen también usará fade-hidden
+
+    scoreHud.classList.add('fade-hidden');
+    pauseBtn.classList.add('fade-hidden');
 
     // Reiniciar música desde el principio
     // music.restart(); // Eliminado para evitar que suene antes de iniciar

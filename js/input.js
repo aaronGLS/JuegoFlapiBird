@@ -72,9 +72,9 @@ export function setupInput(canvas, bird, startScreen, scoreHud, resetGameCallbac
         switch (state.current) {
             case state.getReady:
                 state.current = state.game;
-                startScreen.classList.add('opacity-0');
-                scoreHud.classList.remove('hidden');
-                if (pauseBtn) pauseBtn.classList.remove('hidden');
+                startScreen.classList.add('fade-hidden'); // Usa la nueva clase de transición
+                scoreHud.classList.remove('fade-hidden');
+                if (pauseBtn) pauseBtn.classList.remove('fade-hidden');
                 bird.flap();
 
                 // Iniciar música
