@@ -388,6 +388,141 @@ canvas {
     animation: buttonAppear 0.4s ease-out 0.35s both;
 }
 
+/* === SCREEN SHAKE === */
+@keyframes screenShake {
+
+    0%,
+    100% {
+        transform: translateX(0) translateY(0);
+    }
+
+    10% {
+        transform: translateX(-8px) translateY(-2px);
+    }
+
+    20% {
+        transform: translateX(8px) translateY(2px);
+    }
+
+    30% {
+        transform: translateX(-6px) translateY(-1px);
+    }
+
+    40% {
+        transform: translateX(6px) translateY(1px);
+    }
+
+    50% {
+        transform: translateX(-4px) translateY(-1px);
+    }
+
+    60% {
+        transform: translateX(4px) translateY(1px);
+    }
+
+    70% {
+        transform: translateX(-2px) translateY(0);
+    }
+
+    80% {
+        transform: translateX(2px) translateY(0);
+    }
+
+    90% {
+        transform: translateX(-1px) translateY(0);
+    }
+}
+
+.screen-shake {
+    animation: screenShake 0.4s ease-out;
+}
+
+/* === CONTADOR ANIMADO === */
+@keyframes counterPop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.3);
+        filter: brightness(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.counter-complete {
+    animation: counterPop 0.3s ease-out;
+}
+
+/* === CONFETI / CELEBRACIÓN NUEVO RÉCORD === */
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-20px) rotate(0deg) scale(0);
+        opacity: 1;
+    }
+
+    10% {
+        transform: translateY(0) rotate(45deg) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100vh) rotate(720deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+.confetti-particle {
+    position: absolute;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confettiFall 2s ease-out forwards;
+    z-index: 100;
+}
+
+/* Variaciones de forma para confeti */
+.confetti-particle:nth-child(odd) {
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+}
+
+.confetti-particle:nth-child(3n) {
+    width: 6px;
+    height: 12px;
+}
+
+/* === GLOW PARA NUEVO RÉCORD === */
+@keyframes newRecordGlow {
+
+    0%,
+    100% {
+        text-shadow:
+            3px 3px 0 #000,
+            0 0 10px #FFD700,
+            0 0 20px #FFA500;
+    }
+
+    50% {
+        text-shadow:
+            3px 3px 0 #000,
+            0 0 20px #FFD700,
+            0 0 40px #FFA500,
+            0 0 60px #FF6B6B;
+    }
+}
+
+.new-record-glow {
+    animation: newRecordGlow 1s ease-in-out infinite;
+    color: #FFD700 !important;
+}
+
 /* === PANTALLA DE CARGA === */
 #loading-screen {
     position: absolute;

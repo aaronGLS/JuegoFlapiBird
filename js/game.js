@@ -163,11 +163,79 @@ function handleVolumeChange(e) {
  * CONTROL DE ESTADOS Y EVENTOS
  */
 
+/**
+ * Efecto de screen shake para impacto visual
+ */
+function triggerScreenShake() {
+    const container = document.getElementById('game-container');
+    container.classList.add('screen-shake');
+    setTimeout(() => {
+        container.classList.remove('screen-shake');
+    }, 400);
+}
+
 function triggerFlash() {
     flashOverlay.style.opacity = '0.8';
     setTimeout(() => {
         flashOverlay.style.opacity = '0';
     }, 100);
+}
+
+/**
+ * Anima un contador de 0 al valor final
+ * @param {HTMLElement} element - Elemento a animar
+ * @param {number} targetValue - Valor final
+ * @param {number} duration - Duración en ms
+ */
+function animateCounter(element, targetValue, duration = 800) {
+    const startTime = performance.now();
+    const startValue = 0;
+
+    function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing: ease-out cubic
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(startValue + (targetValue - startValue) * easeProgress);
+
+        element.innerText = currentValue;
+
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.innerText = targetValue;
+            // Añadir efecto pop al terminar
+            element.classList.add('counter-complete');
+            setTimeout(() => element.classList.remove('counter-complete'), 300);
+        }
+    }
+
+    requestAnimationFrame(updateCounter);
+}
+
+/**
+ * Crea efecto de confeti/estrellas para nuevo récord
+ */
+function triggerNewRecordCelebration() {
+    const container = document.getElementById('game-over-screen');
+    const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'];
+    const particleCount = 50;
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'confetti-particle';
+        particle.style.cssText = `
+            left: ${Math.random() * 100}%;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-delay: ${Math.random() * 0.5}s;
+            animation-duration: ${1.5 + Math.random() * 1}s;
+        `;
+        container.appendChild(particle);
+
+        // Limpiar después de la animación
+        setTimeout(() => particle.remove(), 3000);
+    }
 }
 
 function gameOver() {
@@ -177,6 +245,9 @@ function gameOver() {
     state.current = state.over;
     sfx.play('hit');
 
+    // === SCREEN SHAKE ===
+    triggerScreenShake();
+
     // Emitir partículas de explosión en la posición del pájaro
     particles.emit(bird.x, bird.y);
 
@@ -184,37 +255,69 @@ function gameOver() {
     setTimeout(() => sfx.play('die'), 500);
 
     triggerFlash();
+
+    // Detectar si es nuevo récord ANTES de guardar
+    const isNewRecord = score.value > score.best;
     score.save();
 
     // Detener música completamente en game over
     music.stop();
 
-    // Sistema de medallas
-    medalIcon.className = "hidden text-3xl font-bold text-white text-shadow";
+    // === SISTEMA DE MEDALLAS MEJORADO ===
+    medalIcon.className = "text-3xl font-bold text-shadow";
     medalDisplay.style.backgroundColor = "#bdae79";
 
     if (score.value >= 10) {
-        medalIcon.classList.remove('hidden');
         if (score.value >= 40) {
             medalDisplay.style.backgroundColor = "#4eb3e6";
             medalIcon.innerText = "P";
+            medalIcon.style.color = "#fff";
         } else if (score.value >= 30) {
             medalDisplay.style.backgroundColor = "#eebb32";
             medalIcon.innerText = "G";
+            medalIcon.style.color = "#fff";
         } else if (score.value >= 20) {
             medalDisplay.style.backgroundColor = "#dcdcdc";
             medalIcon.innerText = "S";
+            medalIcon.style.color = "#666";
         } else {
             medalDisplay.style.backgroundColor = "#e39a54";
             medalIcon.innerText = "B";
+            medalIcon.style.color = "#fff";
         }
+    } else {
+        // Placeholder para sin medalla - muestra "?" en gris
+        medalIcon.innerText = "?";
+        medalIcon.style.color = "rgba(0,0,0,0.2)";
     }
 
-    score.draw(currentScoreEl, finalScoreEl, bestScoreEl);
+    // === MOSTRAR PANTALLA CON CONTADORES ANIMADOS ===
     scoreHud.classList.add('fade-hidden');
     pauseBtn.classList.add('fade-hidden');
     gameOverScreen.classList.remove('fade-hidden');
-    // Forzar reflow para animación si fuera necesario, pero CSS transition se encarga
+
+    // Inicializar contadores en 0
+    finalScoreEl.innerText = '0';
+    bestScoreEl.innerText = '0';
+
+    // Animar contadores con delays escalonados
+    setTimeout(() => {
+        animateCounter(finalScoreEl, score.value, 600);
+    }, 400); // Después de que aparezca el panel
+
+    setTimeout(() => {
+        animateCounter(bestScoreEl, score.best, 600);
+    }, 600);
+
+    // === CELEBRACIÓN NUEVO RÉCORD ===
+    if (isNewRecord && score.value > 0) {
+        setTimeout(() => {
+            triggerNewRecordCelebration();
+            // Añadir clase especial al best score
+            bestScoreEl.classList.add('new-record-glow');
+        }, 1000);
+    }
+
     restartBtn.focus();
 }
 
@@ -229,6 +332,10 @@ function resetGame() {
     state.current = state.getReady;
     setPaused(false);
     resetFrames();
+
+    // Limpiar efectos visuales de game over
+    bestScoreEl.classList.remove('new-record-glow');
+    document.querySelectorAll('.confetti-particle').forEach(p => p.remove());
 
     gameOverScreen.classList.add('fade-hidden');
     pauseScreen.classList.add('fade-hidden');
