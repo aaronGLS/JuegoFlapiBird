@@ -5,12 +5,22 @@ import { state, BASE_GRAVITY, BASE_JUMP, scaleUniform, scaleByHeight, difficulty
 import { sfx } from './audio.js';
 
 export function createBird(canvas, ctx, fg, gameOverCallback) {
-    // Constantes de diseño responsivas
+    // ===== CONSTANTES DE DISEÑO RESPONSIVAS =====
+    // Tamaños base aumentados un 30% para mejor visibilidad
+    // Estos valores se escalan automáticamente con scaleUniform()
     const Y_POSITION_RATIO = 0.25;      // Posición Y inicial = 25% de la altura
-    const RADIUS_BASE = 12;             // Radio base del pájaro
-    const BODY_WIDTH_BASE = 17;         // Ancho base del cuerpo
-    const BODY_HEIGHT_BASE = 12;        // Alto base del cuerpo
+    const RADIUS_BASE = 15;             // Radio base del pájaro (era 12, +25%)
+    const BODY_WIDTH_BASE = 22;         // Ancho base del cuerpo (era 17, +30%)
+    const BODY_HEIGHT_BASE = 15;        // Alto base del cuerpo (era 12, +25%)
     const OSCILLATION_AMPLITUDE = 0.008; // Amplitud de oscilación como ratio de altura
+
+    // Factor de escala adicional para balancear móvil/PC
+    // En landscape (PC) el pájaro se ve más pequeño proporcionalmente,
+    // así que aplicamos un pequeño boost. En portrait ya es suficiente.
+    const getOrientationScale = () => {
+        const isLandscape = canvas.width > canvas.height;
+        return isLandscape ? 1.15 : 1.0; // +15% en PC/landscape
+    };
 
     return {
         x: 50, // Se recalcula en resizeCanvas
@@ -19,6 +29,7 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
         rotation: 0,
 
         // Radio escalado uniformemente para colisiones consistentes
+        // Nota: El radio de colisión NO usa orientationScale para mantener jugabilidad justa
         get radius() {
             return Math.round(scaleUniform(RADIUS_BASE));
         },
@@ -32,8 +43,9 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
             let birdX = this.x;
             let birdY = this.y;
 
-            // Factor de escala para el dibujo
-            const drawScale = scaleUniform(1);
+            // Factor de escala para el dibujo (incluye boost de orientación para visibilidad)
+            const orientationScale = getOrientationScale();
+            const drawScale = scaleUniform(1) * orientationScale;
             const bodyWidth = BODY_WIDTH_BASE * drawScale;
             const bodyHeight = BODY_HEIGHT_BASE * drawScale;
 

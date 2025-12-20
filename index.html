@@ -46,10 +46,21 @@
             class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none ui-layer">
             <h1 class="game-title text-white font-bold text-stroke tracking-widest pixel-font animate-float">FLAPPY BIRD
             </h1>
-            <div class="bg-white/90 border-4 border-black p-6 rounded-lg shadow-lg text-center ui-layer panel-box">
+            <div class="start-panel panel-box animate-bounce-in">
                 <div class="panel-inner">
-                    <p class="text-2xl text-black font-bold mb-2">TOCA O ESPACIO</p>
-                    <p class="text-xl text-gray-700">PARA COMENZAR</p>
+                    <!-- Iconos y texto mejorados -->
+                    <div class="start-instructions">
+                        <div class="instruction-row">
+                            <span class="instruction-icon">👆</span>
+                            <span class="instruction-text">TOCA</span>
+                        </div>
+                        <span class="instruction-divider">ó</span>
+                        <div class="instruction-row">
+                            <span class="instruction-icon keyboard-icon">␣</span>
+                            <span class="instruction-text">ESPACIO</span>
+                        </div>
+                    </div>
+                    <p class="start-subtitle animate-pulse-soft">PARA COMENZAR</p>
                 </div>
             </div>
         </div>
