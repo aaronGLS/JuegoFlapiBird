@@ -10,6 +10,7 @@ import { createBird } from './bird.js';
 import { createPipes } from './pipes.js';
 import { createParticleSystem } from './particles.js';
 import { setupInput } from './input.js';
+import { initUISounds } from './ui.js';
 
 // Configuración del Canvas
 const canvas = document.getElementById('gameCanvas');
@@ -131,9 +132,10 @@ function handleResume() {
         pauseScreen.classList.add('fade-hidden');
         pauseBtn.classList.remove('fade-hidden');
         lastTime = 0; // Reset delta time para evitar saltos
-        if (!music.isMuted) {
-            music.resume();
-        }
+        // Siempre reanudar la música al despausar.
+        // Si está muteada, _startFromOffset la iniciará con volumen 0,
+        // permitiendo que toggleMute la active instantáneamente después.
+        music.resume();
     }
 }
 
@@ -307,6 +309,9 @@ async function initGame() {
 
     // Marcar que la carga terminó para permitir inputs
     finishLoading();
+
+    // Inicializar sonidos UI (hover/click)
+    initUISounds();
 
     console.log('🎮 Juego iniciado - todos los recursos listos');
 

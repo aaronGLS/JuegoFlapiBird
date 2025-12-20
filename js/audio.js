@@ -77,6 +77,72 @@ export const sfx = {
             // Reproducir sonido (fire and forget para SFX)
             playBuffer(buffer, false, 0.5);
         }
+    },
+
+    /**
+     * Tono suave y rápido para hover (Senoidal)
+     */
+    playUiHover: function () {
+        if (audioCtx.state === 'suspended') return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+
+        // Configuración de tono: Agudo y corto
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.05);
+
+        // Configuración de volumen: Maximizado
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.05);
+
+        // Limpieza
+        osc.onended = () => {
+            osc.disconnect();
+            gain.disconnect();
+        };
+    },
+
+    /**
+     * Tono "click" percusivo
+     */
+    playUiClick: function () {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+
+        // Configuración de tono: Golpe rápido con caída de pitch
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+
+        // Configuración de volumen: Maximizado
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.1);
+
+        // Limpieza
+        osc.onended = () => {
+            osc.disconnect();
+            gain.disconnect();
+        };
     }
 };
 
@@ -200,8 +266,15 @@ export const music = {
 
     toggleMute: function () {
         this.isMuted = !this.isMuted;
+
         if (this.gainNode) {
+            // Si hay un nodo activo, ajustar el volumen directamente
             this.gainNode.gain.value = this.isMuted ? 0 : this.volume;
+        } else if (!this.isMuted && this.pausedAt > 0 && !this.isPlaying) {
+            // Si se desmutea y hay una posición pausada guardada pero no hay gainNode,
+            // significa que la música fue pausada mientras estaba muteada.
+            // La música se reanudará cuando se llame resume() desde handleResume().
+            // No hacemos nada aquí para evitar reproducir antes de tiempo.
         }
         return this.isMuted;
     },
