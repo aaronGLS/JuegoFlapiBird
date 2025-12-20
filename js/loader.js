@@ -24,7 +24,37 @@ export const preloadedAssets = {
 };
 
 // Elementos UI de la pantalla de carga
-let loadingScreen, progressBar, progressText;
+let loadingScreen, progressBar, progressText, loadingTitle;
+
+// Interval para animación de puntos suspensivos
+let dotsAnimationInterval = null;
+
+/**
+ * Inicia la animación de puntos suspensivos dinámicos
+ * Cicla entre "CARGANDO", "CARGANDO.", "CARGANDO..", "CARGANDO..."
+ */
+function startDotsAnimation() {
+    if (!loadingTitle) return;
+
+    let dotCount = 0;
+    const baseText = 'CARGANDO';
+
+    dotsAnimationInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4; // Cicla 0, 1, 2, 3
+        const dots = '.'.repeat(dotCount);
+        loadingTitle.textContent = baseText + dots;
+    }, 400); // Cambia cada 400ms
+}
+
+/**
+ * Detiene la animación de puntos suspensivos
+ */
+function stopDotsAnimation() {
+    if (dotsAnimationInterval) {
+        clearInterval(dotsAnimationInterval);
+        dotsAnimationInterval = null;
+    }
+}
 
 /**
  * Inicializa referencias a elementos UI
@@ -33,6 +63,7 @@ function initUIElements() {
     loadingScreen = document.getElementById('loading-screen');
     progressBar = document.getElementById('progress-fill');
     progressText = document.getElementById('progress-text');
+    loadingTitle = loadingScreen?.querySelector('.loading-title');
 }
 
 /**
@@ -81,6 +112,7 @@ async function waitForFonts() {
  * Oculta la pantalla de carga con animación
  */
 function hideLoadingScreen() {
+    stopDotsAnimation(); // Detener animación de puntos
     if (loadingScreen) {
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
@@ -95,6 +127,7 @@ function hideLoadingScreen() {
  */
 export async function preloadAssets() {
     initUIElements();
+    startDotsAnimation(); // Iniciar animación de puntos suspensivos
     updateProgress(0);
 
     const sfxKeys = Object.keys(SFX_URLS);
