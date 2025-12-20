@@ -98,7 +98,7 @@ export const sfx = {
 
         // Configuración de volumen: Maximizado
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.01);
+        gain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
 
         osc.start(audioCtx.currentTime);
@@ -132,7 +132,7 @@ export const sfx = {
 
         // Configuración de volumen: Maximizado
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+        gain.gain.linearRampToValueAtTime(2, audioCtx.currentTime + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
 
         osc.start(audioCtx.currentTime);
