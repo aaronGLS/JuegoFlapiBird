@@ -3,7 +3,7 @@
  */
 import { preloadAssets } from './loader.js';
 import { sfx, music } from './audio.js';
-import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused, finishLoading } from './state.js';
+import { state, score, FRAME_DURATION, resetFrames, togglePause, isPaused, setPaused, finishLoading, updateDifficulty, resetDifficulty } from './state.js';
 import { createBackground } from './background.js';
 import { createForeground } from './foreground.js';
 import { createBird } from './bird.js';
@@ -216,6 +216,7 @@ function resetGame() {
     bird.reset();
     pipes.reset();
     score.reset();
+    resetDifficulty(); // Reiniciar dificultad al resetear juego
     score.draw(currentScoreEl, finalScoreEl, bestScoreEl);  // Actualizar UI inmediatamente
     state.current = state.getReady;
     setPaused(false);
@@ -229,9 +230,6 @@ function resetGame() {
 
     scoreHud.classList.add('fade-hidden');
     pauseBtn.classList.add('fade-hidden');
-
-    // Reiniciar música desde el principio
-    // music.restart(); // Eliminado para evitar que suene antes de iniciar
 }
 
 /**
@@ -269,6 +267,7 @@ function update(delta) {
     bird.update(delta);
     fg.update(delta);
     pipes.update(delta);
+    updateDifficulty(score.value); // Actualizar dificultad según puntuación
 }
 
 function draw() {

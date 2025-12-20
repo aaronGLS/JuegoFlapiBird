@@ -115,6 +115,30 @@ export function resetFrames() {
     frames = 0;
 }
 
+// === SISTEMA DE DIFICULTAD PROGRESIVA ===
+export let difficultyMultiplier = 1.0;
+const DIFFICULTY_START_SCORE = 50;  // Puntuación para iniciar aumento
+const DIFFICULTY_INCREMENT = 0.02;  // +2% por punto después de 50
+const MAX_DIFFICULTY = 3.0;         // Máximo 3x velocidad
+
+/**
+ * Actualiza el multiplicador de dificultad según la puntuación actual
+ * @param {number} currentScore - Puntuación actual del jugador
+ */
+export function updateDifficulty(currentScore) {
+    if (currentScore >= DIFFICULTY_START_SCORE) {
+        const excess = currentScore - DIFFICULTY_START_SCORE;
+        difficultyMultiplier = Math.min(MAX_DIFFICULTY, 1.0 + (excess * DIFFICULTY_INCREMENT));
+    }
+}
+
+/**
+ * Reinicia el multiplicador de dificultad a 1.0
+ */
+export function resetDifficulty() {
+    difficultyMultiplier = 1.0;
+}
+
 // Sistema de puntuación
 export const score = {
     best: localStorage.getItem('flappy_best') || 0,

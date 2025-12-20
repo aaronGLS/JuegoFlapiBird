@@ -1,7 +1,7 @@
 /**
  * BACKGROUND - Fondo del juego con nubes animadas (RESPONSIVO)
  */
-import { state, scaleUniform, scaleByWidth } from './state.js';
+import { state, scaleUniform, scaleByWidth, difficultyMultiplier } from './state.js';
 
 export function createBackground(canvas, ctx, fg) {
     // Sistema de nubes dinámicas mejorado y responsivo
@@ -64,7 +64,9 @@ export function createBackground(canvas, ctx, fg) {
                 { ox: size * 1.1, oy: 0.05 * size, r: size * 0.65 },
             ],
             // Velocidades más variadas, escaladas por tamaño de referencia
-            speed: scaleByWidth(0.2 + Math.random() * 0.5 + (maxSize - size) / 80),
+            // Velocidad base de nube, se multiplica por dificultad en update()
+            baseSpeed: scaleByWidth(0.2 + Math.random() * 0.5 + (maxSize - size) / 80),
+            get speed() { return this.baseSpeed * difficultyMultiplier; },
             opacity: 0.5 + Math.random() * 0.5,
             width: size * 1.8 // Ancho aproximado para cálculos de espaciado
         };

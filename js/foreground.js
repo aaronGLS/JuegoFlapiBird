@@ -1,7 +1,7 @@
 /**
  * FOREGROUND - Suelo animado del juego (ESCALADO UNIFORME)
  */
-import { state, scaleUniform } from './state.js';
+import { state, scaleUniform, difficultyMultiplier } from './state.js';
 
 export function createForeground(canvas, ctx) {
     // ===== CONSTANTES BASE (para 400x700) =====
@@ -16,7 +16,8 @@ export function createForeground(canvas, ctx) {
         x: 0,
         // Velocidad escalada uniformemente
         get dx() {
-            return scaleUniform(SPEED_BASE);
+            // Velocidad multiplicada por dificultad progresiva
+            return scaleUniform(SPEED_BASE) * difficultyMultiplier;
         },
 
         draw: function () {

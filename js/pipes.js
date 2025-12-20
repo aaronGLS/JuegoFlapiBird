@@ -1,7 +1,7 @@
 /**
  * PIPES - Sistema de tuberías (RESPONSIVO)
  */
-import { state, score, BASE_PIPE_SPAWN, scaleByWidth, scaleByHeight, scaleUniform } from './state.js';
+import { state, score, BASE_PIPE_SPAWN, scaleByWidth, scaleByHeight, scaleUniform, difficultyMultiplier } from './state.js';
 import { sfx } from './audio.js';
 
 export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElements) {
@@ -24,8 +24,8 @@ export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElemen
         },
 
         get dx() {
-            // Velocidad escalada uniformemente para consistencia
-            return Math.max(2, scaleUniform(SPEED_BASE));
+            // Velocidad escalada uniformemente para consistencia, multiplicada por dificultad
+            return Math.max(2, scaleUniform(SPEED_BASE) * difficultyMultiplier);
         },
 
         get gap() {

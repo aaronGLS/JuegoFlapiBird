@@ -1,7 +1,7 @@
 /**
  * BIRD - Lógica y renderizado del pájaro (RESPONSIVO)
  */
-import { state, BASE_GRAVITY, BASE_JUMP, scaleUniform, scaleByHeight } from './state.js';
+import { state, BASE_GRAVITY, BASE_JUMP, scaleUniform, scaleByHeight, difficultyMultiplier } from './state.js';
 import { sfx } from './audio.js';
 
 export function createBird(canvas, ctx, fg, gameOverCallback) {
@@ -96,8 +96,8 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
         },
 
         update: function (delta) {
-            // Gravedad escalada proporcionalmente
-            const scaledGravity = BASE_GRAVITY * Math.max(0.8, scaleByHeight(1) * 0.9);
+            // Gravedad escalada proporcionalmente y multiplicada por dificultad
+            const scaledGravity = BASE_GRAVITY * Math.max(0.8, scaleByHeight(1) * 0.9) * difficultyMultiplier;
 
             // En GetReady, oscilación senoidal basada en tiempo real
             if (state.current == state.getReady) {
