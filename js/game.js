@@ -8,6 +8,7 @@ import { createBackground } from './background.js';
 import { createForeground } from './foreground.js';
 import { createBird } from './bird.js';
 import { createPipes } from './pipes.js';
+import { createParticleSystem } from './particles.js';
 import { setupInput } from './input.js';
 
 // Configuración del Canvas
@@ -48,6 +49,7 @@ const fg = createForeground(canvas, ctx);
 const bg = createBackground(canvas, ctx, fg);
 const bird = createBird(canvas, ctx, fg, gameOver);
 const pipes = createPipes(canvas, ctx, fg, bird, gameOver, scoreElements);
+const particles = createParticleSystem(canvas, ctx);
 
 // Configurar entrada (pasar handlePause para la tecla Escape)
 setupInput(canvas, bird, startScreen, scoreHud, resetGame, handlePause);
@@ -173,6 +175,9 @@ function gameOver() {
     state.current = state.over;
     sfx.play('hit');
 
+    // Emitir partículas de explosión en la posición del pájaro
+    particles.emit(bird.x, bird.y);
+
     // Pequeño delay para el sonido de caída "die"
     setTimeout(() => sfx.play('die'), 500);
 
@@ -213,6 +218,7 @@ function gameOver() {
 
 function resetGame() {
     sfx.play('swooshing');
+    particles.reset(); // Limpiar partículas residuales
     bird.reset();
     pipes.reset();
     score.reset();
@@ -267,6 +273,7 @@ function update(delta) {
     bird.update(delta);
     fg.update(delta);
     pipes.update(delta);
+    particles.update(delta); // Actualizar partículas
     updateDifficulty(score.value); // Actualizar dificultad según puntuación
 }
 
@@ -275,6 +282,7 @@ function draw() {
     pipes.draw();
     fg.draw();
     bird.draw();
+    particles.draw(); // Dibujar partículas sobre todo
 }
 
 function drawPauseOverlay() {
