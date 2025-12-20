@@ -2,7 +2,7 @@
  * UI.JS - Sistema de Sonidos e Interacción de Interfaz
  * Maneja los eventos de hover y click para todos los elementos interactivos.
  */
-import { sfx } from './audio.js';
+import { sfx, resumeAudioContext } from './audio.js';
 
 /**
  * Inicializa los sonidos de la interfaz
@@ -29,9 +29,12 @@ export function initUISounds() {
         // 'pointerdown' se dispara antes que mousedown/touchstart y no es bloqueado por preventDefault() en touchend.
         // Esto garantiza que el sonido suene siempre al interactuar, tanto en PC como en Móvil.
         el.addEventListener('pointerdown', (e) => {
+            // Desbloquear AudioContext en la primera interacción con UI
+            // Esto garantiza que el sonido funcione incluso si el primer click es en un botón UI
+            resumeAudioContext();
+
             // Solo sonar si no está deshabilitado
             if (!el.disabled) {
-                // Pequeña validación: si es touch, asegurarnos que no sea un scroll (aunque pointerdown suele ser intencional)
                 sfx.playUiClick();
             }
         });
