@@ -63,11 +63,13 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
             ctx.strokeStyle = "#000";
             ctx.stroke();
 
-            // Ojo (escalado proporcionalmente)
-            const eyeOffsetX = 6 * drawScale;
-            const eyeOffsetY = -6 * drawScale;
-            const eyeRadius = 6 * drawScale;
-            const pupilRadius = 2 * drawScale;
+            // ===== OJO (posicionado relativo al cuerpo) =====
+            // Usamos proporciones del cuerpo para posicionar correctamente
+            const eyeOffsetX = bodyWidth * 0.35;      // 35% del ancho del cuerpo hacia adelante
+            const eyeOffsetY = -bodyHeight * 0.45;    // 45% de la altura hacia arriba
+            const eyeRadius = bodyHeight * 0.4;       // Radio proporcional a la altura
+            const pupilRadius = eyeRadius * 0.35;     // Pupila proporcional al ojo
+            const pupilOffsetX = eyeRadius * 0.25;    // Pupila ligeramente hacia adelante
 
             ctx.fillStyle = "#fff";
             ctx.beginPath();
@@ -76,24 +78,33 @@ export function createBird(canvas, ctx, fg, gameOverCallback) {
             ctx.stroke();
             ctx.fillStyle = "#000";
             ctx.beginPath();
-            ctx.arc(eyeOffsetX + 2 * drawScale, eyeOffsetY, pupilRadius, 0, Math.PI * 2);
+            ctx.arc(eyeOffsetX + pupilOffsetX, eyeOffsetY, pupilRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Ala (escalada con animación)
+            // ===== ALA (posicionada relativa al cuerpo) =====
             ctx.fillStyle = "#fff";
             ctx.beginPath();
-            let wingY = (Date.now() % 200 < 100) ? 2 * drawScale : -2 * drawScale;
+            let wingY = (Date.now() % 200 < 100) ? bodyHeight * 0.15 : -bodyHeight * 0.15;
             if (state.current === state.getReady) wingY = 0;
-            ctx.ellipse(-6 * drawScale, 2 * drawScale + wingY, 8 * drawScale, 5 * drawScale, 0, 0, Math.PI * 2);
+            const wingX = -bodyWidth * 0.3;           // 30% hacia atrás
+            const wingWidth = bodyWidth * 0.4;        // 40% del ancho del cuerpo
+            const wingHeight = bodyHeight * 0.35;     // 35% de la altura
+            ctx.ellipse(wingX, bodyHeight * 0.1 + wingY, wingWidth, wingHeight, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
-            // Pico (escalado)
+            // ===== PICO (posicionado relativo al cuerpo) =====
             ctx.fillStyle = "#e86101";
             ctx.beginPath();
-            ctx.moveTo(8 * drawScale, 2 * drawScale);
-            ctx.lineTo(18 * drawScale, 6 * drawScale);
-            ctx.lineTo(8 * drawScale, 10 * drawScale);
+            const beakStartX = bodyWidth * 0.4;       // Empieza al 40% del ancho
+            const beakEndX = bodyWidth * 0.9;         // Termina al 90% del ancho
+            const beakTopY = bodyHeight * 0.1;        // Parte superior
+            const beakMidY = bodyHeight * 0.4;        // Centro/punta
+            const beakBottomY = bodyHeight * 0.65;    // Parte inferior
+            ctx.moveTo(beakStartX, beakTopY);
+            ctx.lineTo(beakEndX, beakMidY);
+            ctx.lineTo(beakStartX, beakBottomY);
+            ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
