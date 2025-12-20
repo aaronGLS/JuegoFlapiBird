@@ -150,4 +150,3 @@ export function createPipes(canvas, ctx, fg, bird, gameOverCallback, scoreElemen
         }
     };
 }
-
