@@ -1,3 +1,0 @@
-- **habla siempre en español**
-- **Siempre que te pida realizar un análisis de código, debes de hacerlo muy detallado, exhaustivo, profesional y completo.**
-- **Aplica las mejores prácicas de programación en cada momento.**
